@@ -32,4 +32,4 @@ Spark-Solr libraries are used for connectivity between Apache Spark and Apache S
 
 ## Developing a custom parser
 
-
+## References
