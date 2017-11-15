@@ -11,6 +11,7 @@ import org.jwat.warc.{WarcReaderFactory, WarcRecord}
 import org.sfsu.cs.document.{StringDocument, TFDocument}
 import org.sfsu.cs.io.clueweb.ResponseIterator
 import org.sfsu.cs.preprocess.CustomAnalyzer
+import org.sfsu.cs.utils.Utility
 
 import scala.collection.JavaConversions
 import scala.collection.mutable.ListBuffer
@@ -34,18 +35,16 @@ object Clueweb09Parser {
     println(s"LOG: Start converting the raw data (html) to text: ${Calendar.getInstance().getTime()} ")
     val plainTextDocuments = input.map(doc ⇒ new StringDocument(doc.id, CustomAnalyzer.htmlToText(doc.contents)))
     println(s"LOG: End converting the raw data (html) to text: ${Calendar.getInstance().getTime()} ")
-
-    val stopWords = sc.broadcast(scala.io.Source.fromFile(stopWordsFilePath).getLines().toSet).value
+    val stopWords = Utility.getStopWords(stopWordsFilePath,sc)
     println("stopwords: ", stopWords.take(10))
     CustomAnalyzer.initStem()
     val tfDocs = plainTextDocuments.map(doc => {
       val tf = CustomAnalyzer.tokenizeFilterStopWordsStem(doc.contents, stopWords)
       new TFDocument(doc.id, tf)
     })
-
-    tfDocs.cache()
     tfDocs
   }
+
 
 
     /**

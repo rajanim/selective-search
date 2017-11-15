@@ -30,7 +30,7 @@ class TopicalShardsCreation extends RDDProcessor {
 
  var collection: String = null
   var zkHost: String = null
-
+var stopWordsFilePath = ""
 
   def getOptions: Array[Option] = {
     Array(
@@ -85,6 +85,10 @@ class TopicalShardsCreation extends RDDProcessor {
         .hasArg()
         .desc("Directory path to save trained model")
         .longOpt("saveModelAt").build,
+      Option.builder()
+          .hasArg()
+          .desc("Path to file containing list of stopwords separated by new line")
+          .longOpt("stopWordsFilePath").build(),
       Option.builder("Train Phase/Project Phase")
         .hasArg()
         .desc("Input 0 or 1, 0 for train phase and 1 for project/test phase." +
@@ -112,10 +116,13 @@ class TopicalShardsCreation extends RDDProcessor {
       println(s"LOG: Start reading the raw data: ${Calendar.getInstance().getTime()} ")
       val stringDocs = Clueweb09Parser.getWarcRecordsViaFIS(sc, warcFilesPath, partitions = numPartitions)
       println(s"LOG: End reading the raw data via java file io: ${Calendar.getInstance().getTime()} ")
+      val tfDocs = Clueweb09Parser.getTFDocuments(sc, stringDocs, numPartitions, stopWordsFilePath)
+      tfDocs.cache()
 
 
     } //work for text files
     else {
+
 
     }
 
@@ -133,7 +140,7 @@ class TopicalShardsCreation extends RDDProcessor {
     warcFilesPath = cli.getOptionValue("warcFilesPath")
     textFilesPath = cli.getOptionValue("textFilesPath")
     saveModelAt = cli.getOptionValue("saveModel", System.getProperty("user.dir") + "/Spark_Trained_Model/")
-
+    stopWordsFilePath = cli.getOptionValue("stopWordsFilePath")
     //todo : do a null check for model path and dictionary location  incase phase = 1 and report exception.
     modelPath = cli.getOptionValue("modelPath")
     //dictionaryLocation = cli.getOptionValue("dictionaryLocation")
