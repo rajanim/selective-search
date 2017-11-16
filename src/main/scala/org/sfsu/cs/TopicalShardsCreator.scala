@@ -6,16 +6,26 @@ import java.util.Calendar
 import breeze.linalg.SparseVector
 import com.lucidworks.spark.SparkApp.RDDProcessor
 import org.apache.commons.cli.{CommandLine, Option}
+import org.apache.spark.rdd.RDD
 import org.apache.spark.{SparkConf, SparkContext}
+import org.sfsu.cs.clustering.kmeans.KMeanClustering
+import org.sfsu.cs.document.DocVector
+import org.sfsu.cs.index.IndexToSolr
 import org.sfsu.cs.io.clueweb09.Clueweb09Parser
+import org.sfsu.cs.io.text.TextFileParser
+import org.sfsu.cs.utils.Utility
+import org.sfsu.cs.vectorize.VectorImpl
+import org.slf4j.{Logger, LoggerFactory}
 
 /**
   * Created by rajanishivarajmaski1 on 10/25/17.
   */
-class TopicalShardsCreation extends RDDProcessor {
+class TopicalShardsCreator extends RDDProcessor {
 
-  def getName: String = "TopicalShardsCreation"
+  val  logger: Logger= LoggerFactory.getLogger(TopicalShardsCreator.this.getName)
+  def getName: String = "TopicalShardsCreator"
 
+  var stopWordsFilePath = ""
   var numFeatures: Int = 0
   var numClusters: Int = 0
   var numIterations: Int = 0
@@ -27,10 +37,11 @@ class TopicalShardsCreation extends RDDProcessor {
 
   var saveModelAt: String = null
   var modelPath: String = null
+  var dictionaryLocation : String = null
 
- var collection: String = null
+  var collection: String = null
   var zkHost: String = null
-var stopWordsFilePath = ""
+
 
   def getOptions: Array[Option] = {
     Array(
@@ -86,9 +97,9 @@ var stopWordsFilePath = ""
         .desc("Directory path to save trained model")
         .longOpt("saveModelAt").build,
       Option.builder()
-          .hasArg()
-          .desc("Path to file containing list of stopwords separated by new line")
-          .longOpt("stopWordsFilePath").build(),
+        .hasArg()
+        .desc("Path to file containing list of stopwords separated by new line")
+        .longOpt("stopWordsFilePath").build(),
       Option.builder("Train Phase/Project Phase")
         .hasArg()
         .desc("Input 0 or 1, 0 for train phase and 1 for project/test phase." +
@@ -102,55 +113,80 @@ var stopWordsFilePath = ""
 
   def run(conf: SparkConf, cli: CommandLine): Int = {
     val sc = new SparkContext(conf)
+    logger.warn("Spark context obtained", sc.sparkUser)
     warcFilesPath = cli.getOptionValue("warcFilesPath")
-    if (warcFilesPath == null || warcFilesPath.isEmpty) {
+    if (warcFilesPath.isEmpty) {
       textFilesPath = cli.getOptionValue("textFilesPath")
-      if (textFilesPath == null || textFilesPath.isEmpty)
+      if (textFilesPath.isEmpty)
         throw new Exception(" Input files (warcFilesPath/textFilesPath path not found")
     }
-
-    parseCmdLineAssignToVariables(cli)
-
+    parseCmdLineArgsToVariables(cli)
     //work for clueweb warc files
     if (warcFilesPath != null && !warcFilesPath.isEmpty) {
-      println(s"LOG: Start reading the raw data: ${Calendar.getInstance().getTime()} ")
       val stringDocs = Clueweb09Parser.getWarcRecordsViaFIS(sc, warcFilesPath, partitions = numPartitions)
-      println(s"LOG: End reading the raw data via java file io: ${Calendar.getInstance().getTime()} ")
       val tfDocs = Clueweb09Parser.getTFDocuments(sc, stringDocs, numPartitions, stopWordsFilePath)
-      tfDocs.cache()
-
-
+      val docVectors = VectorImpl.getDocVectors(sc, tfDocs, numFeatures)
+      val kMeansResult = initKmeans(docVectors)
+      IndexToSolr.indexToSolr(docVectors, collection, zkHost, kMeansResult)
     } //work for text files
     else {
-
-
+      val tfDocs = TextFileParser.getTFDocuments(sc, textFilesPath, numPartitions, stopWordsFilePath)
+      val docVectors = VectorImpl.getDocVectors(sc, tfDocs, numFeatures)
+      val kMeansResult = initKmeans(docVectors)
+      IndexToSolr.indexToSolr(docVectors, collection, zkHost, kMeansResult)
     }
-
     0
   }
 
-  def parseCmdLineAssignToVariables(cli: CommandLine) {
-    //check training or test phase. For test phase, model path is required.
-    var modelPath: String = null
+  /**
+    * invoke kmeans for the vectors and return kmean centroids(array of vectors)
+    * @param docVectors
+    * @return
+    */
+  def initKmeans(docVectors: RDD[DocVector]): Array[org.apache.spark.mllib.linalg.Vector] = {
+    println(s"LOG: Start KMeanClustering: ${Calendar.getInstance().getTime()} ")
+    val result = KMeanClustering.train(data = docVectors.map(docVec => docVec.vector), numClusters, numIterations, numFeatures)
+    println(s"LOG: End KMeanClustering: ${Calendar.getInstance().getTime()} ")
 
+    val spareCenters = result.map(vec => vec.toSparse)
+    if (saveModelAt.isEmpty) {
+      println("writing centroids to file location", Utility.getFilePath())
+      Utility.writeToFile(spareCenters.mkString("\n"), Utility.getFilePath() + "_centroids")
+    } else {
+      println("writing centroids to file location", saveModelAt)
+      Utility.writeToFile(spareCenters.mkString("\n"), saveModelAt)
+    }
+    result
+  }
+
+
+  def parseCmdLineArgsToVariables(cli: CommandLine) {
+    stopWordsFilePath = cli.getOptionValue("stopWordsFilePath", "")
     numFeatures = cli.getOptionValue("numFeatures", "50").toInt
     numClusters = cli.getOptionValue("numClusters", "2").toInt
     numIterations = cli.getOptionValue("numIterations", "5").toInt
-    numPartitions = cli.getOptionValue("numPartitions", "10").toInt
-    warcFilesPath = cli.getOptionValue("warcFilesPath")
-    textFilesPath = cli.getOptionValue("textFilesPath")
-    saveModelAt = cli.getOptionValue("saveModel", System.getProperty("user.dir") + "/Spark_Trained_Model/")
-    stopWordsFilePath = cli.getOptionValue("stopWordsFilePath")
-    //todo : do a null check for model path and dictionary location  incase phase = 1 and report exception.
-    modelPath = cli.getOptionValue("modelPath")
-    //dictionaryLocation = cli.getOptionValue("dictionaryLocation")
+
+    numPartitions = cli.getOptionValue("numPartitions", "4").toInt
+
+    warcFilesPath = cli.getOptionValue("warcFilesPath", "")
+    textFilesPath = cli.getOptionValue("textFilesPath", "")
 
 
-    println(" Number of Features for Dictionary: " + numFeatures)
-    println(" Number of Clusters for KMean: " + numClusters)
-    println(" Number of Iterations for KMean: " + numIterations)
-    println(" Number of Partitions: " + numPartitions)
-    println(" warc Files directory path: " + warcFilesPath)
+    val phase = cli.getOptionValue("phase", "0").toInt
+    if(phase==1){
+      modelPath = cli.getOptionValue("modelPath")
+      dictionaryLocation = cli.getOptionValue("dictionaryLocation")
+      if(modelPath.isEmpty || dictionaryLocation.isEmpty)
+        throw new Exception("modelPath and dictionaryLocation required for predict/project phase")
+    }
+    saveModelAt = cli.getOptionValue("saveModel", "")
+    logger.info(" Number of Features for Dictionary: " + numFeatures)
+    logger.info(" Number of Clusters for KMean: " + numClusters)
+    logger.info(" Number of Iterations for KMean: " + numIterations)
+    logger.info(" Number of Partitions: " + numPartitions)
+    logger.info(" warc Files directory path: " + warcFilesPath)
+    logger.info(" text Files directory path: " + textFilesPath)
+    logger.info(" model saved at: " + saveModelAt)
 
     //solr cloud values
     zkHost = cli.getOptionValue("zkHost", "localhost:9983")
@@ -158,7 +194,7 @@ var stopWordsFilePath = ""
   }
 
   def createSparkContext(): SparkContext = {
-    val sparkConf = new SparkConf().setAppName("TopicalShardsCreation")
+    val sparkConf = new SparkConf().setAppName("TopicalShardsCreator")
     sparkConf.set("spark.serializer", "org.apache.spark.serializer.KryoSerializer")
     sparkConf.registerKryoClasses(Array(
       classOf[SparseVector[Int]],

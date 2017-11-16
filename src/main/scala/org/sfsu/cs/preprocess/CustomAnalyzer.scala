@@ -1,8 +1,6 @@
 package org.sfsu.cs.preprocess
 
 
-import java.util.Arrays
-
 import org.jsoup.Jsoup
 import org.lemurproject.kstem.KrovetzStemmer
 
@@ -21,9 +19,10 @@ object CustomAnalyzer {
   def initStem() = stem = new KrovetzStemmer
 
 
-  def getStemmer() : KrovetzStemmer ={
+  def getStemmer(): KrovetzStemmer = {
     stem
   }
+
   /**
     * Analyzer : Tokenizes and filters by lowercase, stopwords
     *

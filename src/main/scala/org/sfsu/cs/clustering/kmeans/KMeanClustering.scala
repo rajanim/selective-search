@@ -177,7 +177,8 @@ class KMeanClustering private(
   def initRandomSampling(rddData : RDD[Vector]) : Array[Vector] = {
     val rand = new Random
     val seed = rand.nextLong()
-    rddData.takeSample(true, k, seed)
+    val nonZeroVectorsRDD = rddData.filter(v => v.numNonzeros>2)
+    nonZeroVectorsRDD.takeSample(true, k, seed)
   }
 
   /**

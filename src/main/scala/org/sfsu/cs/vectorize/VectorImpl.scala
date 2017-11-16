@@ -17,6 +17,14 @@ import scala.collection.mutable
 object VectorImpl {
 
 
+  /**
+    * Obtain TF-IDF based document vectors for input docs. Vector size is equivalent to numFeatures (dictionary size) set.
+    *
+    * @param sc
+    * @param tfDocs
+    * @param numFeatures
+    * @return
+    */
   def getDocVectors(sc: SparkContext, tfDocs: RDD[TFDocument], numFeatures : Int ) : RDD[DocVector]= {
     val numDocs = tfDocs.count()
     println(s"LOG: End numDocs count: $numDocs, at time ${Calendar.getInstance().getTime()} ")

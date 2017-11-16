@@ -38,7 +38,6 @@ object TextFileParser {
       new TFDocument(doc.id, tf)
     })
 
-    tfDocs.cache()
     tfDocs
 
   }
