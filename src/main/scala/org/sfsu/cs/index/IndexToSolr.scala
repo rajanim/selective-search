@@ -2,7 +2,6 @@ package org.sfsu.cs.index
 
 import com.lucidworks.spark.util.SolrSupport
 import org.apache.solr.common.SolrInputDocument
-import org.apache.spark.SparkContext
 import org.apache.spark.rdd.RDD
 import org.sfsu.cs.clustering.kmeans.KMeanClustering
 import org.sfsu.cs.document.DocVector
@@ -13,6 +12,13 @@ import org.sfsu.cs.document.DocVector
 object IndexToSolr {
 
 
+  /**
+    *
+    * @param docVectors
+    * @param zkHost
+    * @param collectionName
+    * @param result
+    */
   def indexToSolr(docVectors: RDD[DocVector],
                   zkHost: String, collectionName: String, result: Array[org.apache.spark.mllib.linalg.Vector]) = {
     val solrRecords = docVectors.map(doc => {
@@ -23,6 +29,12 @@ object IndexToSolr {
   }
 
 
+  /**
+    *
+    * @param doc
+    * @param clusterIdScore
+    * @return
+    */
   def getInputSolrDoc(doc: DocVector, clusterIdScore: (Int, Double)): SolrInputDocument = {
     val solrDoc = new SolrInputDocument
     val cid = Integer.valueOf(clusterIdScore._1) + 1

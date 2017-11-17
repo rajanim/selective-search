@@ -1,8 +1,10 @@
 package org.sfsu.cs
 
 /**
- * @author ${user.name}
- */
+  * Created by rajanishivarajmaski1 on 10/25/17.
+  *
+  * Test app.
+  */
 object App {
   
   def foo(x : Array[String]) = x.foldLeft("")((a,b) => a + b)

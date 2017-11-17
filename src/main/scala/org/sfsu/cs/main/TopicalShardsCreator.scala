@@ -1,5 +1,4 @@
-package org.sfsu.cs
-
+package org.sfsu.cs.main
 
 import java.util.Calendar
 
