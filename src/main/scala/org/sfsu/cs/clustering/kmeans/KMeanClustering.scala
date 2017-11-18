@@ -124,11 +124,6 @@ class KMeanClustering private(
     val normalizedVectors = transformVectors(vectors)
 
     //seed selection
-    println(s" vbr average ${vrs.getAverage} and vbr std deviation ${vrs.getStdDev}")
-
-    /*val seeds =
-      initRandomNonZeroVectors(normalizedVectors)
-*/
     val seeds = initRandomSampling(normalizedVectors)
 
     println("writing seeds to file location", Utility.getFilePath())

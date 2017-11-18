@@ -192,16 +192,5 @@ class TopicalShardsCreator extends RDDProcessor {
     collection = cli.getOptionValue("collection", "collection1")
   }
 
-  def createSparkContext(): SparkContext = {
-    val sparkConf = new SparkConf().setAppName("TopicalShardsCreator")
-    sparkConf.set("spark.serializer", "org.apache.spark.serializer.KryoSerializer")
-    sparkConf.registerKryoClasses(Array(
-      classOf[SparseVector[Int]],
-      classOf[SparseVector[Long]],
-      classOf[SparseVector[Double]],
-      classOf[SparseVector[Float]]
-    ))
-    new SparkContext(sparkConf)
-  }
 }
 
