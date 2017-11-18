@@ -1,3 +1,5 @@
+package org.sfsu.cs.io
+
 import org.apache.spark.{SparkConf, SparkContext}
 import org.sfsu.cs.clustering.kmeans.KMeanClustering
 import org.sfsu.cs.index.IndexToSolr
