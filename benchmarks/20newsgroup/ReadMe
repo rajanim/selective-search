@@ -1,7 +1,7 @@
 
 20 newsgroup dataset (http://qwone.com/~jason/20Newsgroups/20news-18828.tar.gz)
 
-Download, untar and run "PrepareTwentyNewsgroup.java" to get all the files in sub directories into one.
+Download, untar and run "PrepareTwentyNewsgroup.java" to write out all the files under sub directories  of 20newsgroup into one flat directory(required to run and test kmean clustering).
 Run the "/selective-search/src/main/scala/org/sfsu/cs/io/newsgroup/NewsgroupRunner.scala"
 
 Results
