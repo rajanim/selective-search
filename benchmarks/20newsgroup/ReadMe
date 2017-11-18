@@ -1,0 +1,11 @@
+
+20 newsgroup dataset (http://qwone.com/~jason/20Newsgroups/20news-18828.tar.gz)
+
+Download, untar and run "PrepareTwentyNewsgroup.java" to get all the files in sub directories into one.
+Run the "/selective-search/src/main/scala/org/sfsu/cs/io/newsgroup/NewsgroupRunner.scala"
+
+Results
+Under /20newsgroup/output
+Resulting dictionary map(size= numFeatures) : dictionary_numFeatures_20000.txt
+Cluster allocation visualized in sector graph : 20Newsgroup_dataset_kmeans_cluster_allocation_results.pdf
+WordCloud of each cluster can be seen in the file : 20Newsgroup_dataset_kmeans_cluster_allocation_results.pdf

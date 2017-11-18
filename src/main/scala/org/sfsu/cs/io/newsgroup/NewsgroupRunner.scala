@@ -1,14 +1,16 @@
-package org.sfsu.cs.main
+package org.sfsu.cs.io.newsgroup
 
 import org.sfsu.cs.clustering.kmeans.KMeanClustering
 import org.sfsu.cs.index.IndexToSolr
 import org.sfsu.cs.io.text.TextFileParser
+import org.sfsu.cs.main.SparkInstance
 import org.sfsu.cs.vectorize.VectorImpl
 
 /**
   * Created by rajanishivarajmaski1 on 11/17/17.
+  * Stopwords under /src/test/resources/stopwords.txt
   */
-object NewsByte {
+object NewsgroupRunner {
 
   def main(args: Array[String]): Unit = {
     val sparkInstance = new SparkInstance
