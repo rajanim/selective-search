@@ -14,8 +14,10 @@ The methodology of decomposing a large-scale collection into subunits based on i
 
 
 ## Technology Stack 
-Programming language : Scala
-Extended frameworks : Apache Spark for distributed computing, Apache Solr for distributed search. 
+* Programming language : Scala
+* Extended frameworks 
+    * Apache Spark for distributed computing
+    * Apache Solr for distributed search 
 
 Extends Apache Spark's Machine Learning Libraries(MLLib) for implementation of Topic Based Partitioning and runs on top of Spark Cluster. 
 Extends Apache Solr Information Retrieval(Search) libraries for implementation of various selective search algorithms and search cluster itself is setup on Apache SolrCloud. For integration between Apache Spark and Apache Solr, Spark-Solr libraries are utilized.
@@ -43,12 +45,20 @@ Extends Apache Solr Information Retrieval(Search) libraries for implementation o
 
  
 ## Getting started
-### Compile
-To compile the current version of selective-search, you will need Apache Maven which will take care of importing all the libraries dependencies. After downloading the project, you can compile it from the repository directory by executing following commands
-        mvn clean install -DskipTests
-     
 
-### Features
+### Compile
+To compile the current version of selective-search, you will need the following list of software running on your machine.
+* Java, Scala, Apache Maven (versions as listed in version compatibility section)
+ 
+ In order to verify the above listed softwares are running on your machine, confirm with commands below.
+ * `java -version` 
+    *  java version "1.8.0_31"
+ * `scala -version`
+    * Scala code runner version 2.11.8
+ * `mvn -version`
+    * Apache Maven 3.3.9
+
+    ### Features
 
 
 ## Examples
