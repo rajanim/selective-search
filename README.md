@@ -19,8 +19,11 @@ The methodology of decomposing a large-scale collection into subunits based on i
     * Apache Spark for distributed computing
     * Apache Solr for distributed search 
 
-Extends Apache Spark's Machine Learning Libraries(MLLib) for implementation of Topic Based Partitioning and runs on top of Spark Cluster. 
-Extends Apache Solr Information Retrieval(Search) libraries for implementation of various selective search algorithms and search cluster itself is setup on Apache SolrCloud. For integration between Apache Spark and Apache Solr, Spark-Solr libraries are utilized.
+Extends Apache Spark's Machine Learning Libraries(MLLib) for implementation of Topic Based Partitioning and algorithm is run on top of Spark Cluster. 
+
+Extends Apache Solr's Information Retrieval(Search) libraries for implementation of various selective search algorithms and search cluster itself is setup on Apache SolrCloud. 
+
+For integration between Apache Spark and Apache Solr, Spark-Solr libraries are utilized.
 
 
 ## Version Compatibility 
@@ -36,11 +39,9 @@ Extends Apache Solr Information Retrieval(Search) libraries for implementation o
 
 6. Apache Maven 3.5.0
 
-7. Apache Ivy 2.4.0  :: http://ant.apache.org/ivy
+7. Apache Ivy 2.4.0
 
 8. Apache ANT version 1.10.1
-
-9. code from git repo :: https://github.com/rajanim/selective-search.git
 
 
  
@@ -58,15 +59,23 @@ To compile the current version of selective-search, you will need the following 
  * `mvn -version`
     * Apache Maven 3.3.9
 
-    ### Features
 
+After verification of required softwares setup, download the source code and execute the below command.
+* `mvn clean install -DskipTests`
+
+
+### Run
+To run the parameter server on your localhost, you have two options
+
+### Setup on IntelliJ 
 
 ## Examples
+Following steps enable a developer to implement selective search on his/her own custom dataset by extending the current project.
+
+
 
 ## Configuration and Tuning
 
 ## Troubleshooting tips and suggestions
-
-## Developing a custom parser
 
 ## References
