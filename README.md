@@ -8,9 +8,9 @@ Selective search is a Distributed Information Retrieval(DIR) project for large-s
 The methodology of decomposing a large-scale collection into subunits based on its records content similarity is termed as “Topic Based Partitioning”, and searching across only fewer relevant shards for given search query is termed as “Selective Search” in a [publication](online.sfsu.edu/ak/#publications) by Kulkarni et al. 
 
 
-## Architecture Overview
+## General Architecture Overview
 
-![Overview1](https://raw.githubusercontent.com/rajanim/selective-search/master/docs/selective_search.jpg)
+![Overview1](https://raw.githubusercontent.com/rajanim/selective-search/master/docs/general_selective_search_arc.jpg)
 
 
 ## Technology Stack 
@@ -25,6 +25,9 @@ Extends Apache Solr's Information Retrieval(Search) libraries for implementation
 
 For integration between Apache Spark and Apache Solr, Spark-Solr libraries are utilized.
 
+## Implementation Architecture 
+
+![Overview2](https://raw.githubusercontent.com/rajanim/selective-search/master/docs/impl_selective_search.jpg)
 
 ## Version Compatibility 
 1. Java JDK 8 java version "1.8.0_131"
