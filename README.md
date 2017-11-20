@@ -9,22 +9,22 @@ The methodology of decomposing a large-scale collection into subunits based on i
 
 
 
-## General Architecture
+# General Architecture
 
 ![Overview1](https://raw.githubusercontent.com/rajanim/selective-search/master/docs/general_selective_search_arc.jpg)
+
+
+# Current Implementation
 
 
 ## Technology Stack 
 * Programming language : Scala
 * Extended frameworks 
-    * Apache Spark for distributed computing
-    * Apache Solr for distributed search 
-
-Extends Apache Spark's Machine Learning Libraries(MLLib) for implementation of Topic Based Partitioning and algorithm is run on top of Spark Cluster. 
-
-Extends Apache Solr's Information Retrieval(Search) libraries for implementation of various selective search algorithms and search cluster itself is setup on Apache SolrCloud. 
-
-For integration between Apache Spark and Apache Solr, Spark-Solr libraries are utilized.
+    * Apache Spark for Distributed Computing
+        * Extends Apache Spark's Machine Learning Libraries(MLLib) for implementation of Topic Based Partitioning and algorithm is run on top of Spark Cluster. 
+    * Apache Solr for Distributed Search
+        * Extends Apache Solr's Information Retrieval(Search) libraries for implementation of various selective search algorithms and search cluster itself is setup on Apache SolrCloud. 
+    * For integration between Apache Spark and Apache Solr, Spark-Solr libraries are utilized.
 
 
 ## Version Compatibility 
@@ -50,7 +50,7 @@ For integration between Apache Spark and Apache Solr, Spark-Solr libraries are u
 
 
  
-## Getting started
+# Getting started
 
 ### Compile
 To compile the current version of selective-search, you will need the following list of software running on your machine.
@@ -70,17 +70,27 @@ After verification of required softwares setup, download the source code and exe
 
 
 ### Run
-To run the parameter server on your localhost, you have two options
+To run the selective-search project on your localhost, you would initially require Apache SolrCloud configured, to setup Apache Solr, follow instructions provided here: ()
+Post that setup, you have three ways to run selective-search
+    1) Run as a jar file, this will spin spark locally and shuts down after program completion.
+    2) Run on IntelliJ/Eclipse IDE.
+    3) Launching a Spark Cluster and running on it.
 
-### Setup on IntelliJ 
+
 
 ## Examples
-Following steps enable a developer to implement selective search on his/her own custom dataset by extending the current project.
+To execute selective search for custom(any other) dataset by extending the current project, follow the below steps
 
 
 
 ## Configuration and Tuning
+Current configuration
+
 
 ## Troubleshooting tips and suggestions
+Memory settings
+
+Spark tuning
+
 
 ## References
