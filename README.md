@@ -11,8 +11,10 @@ The methodology of decomposing a large-scale collection into subunits based on i
 
 # General Architecture
 
+
 ![Overview1](https://raw.githubusercontent.com/rajanim/selective-search/master/docs/general_selective_search_arc.jpg)
 
+#
 
 # Current Implementation
 
@@ -75,7 +77,6 @@ Post that setup, you have three ways to run selective-search
     1) Run as a jar file, this will spin spark locally and shuts down after program completion.
     2) Run on IntelliJ/Eclipse IDE.
     3) Launching a Spark Cluster and running on it.
-
 
 
 ## Examples
