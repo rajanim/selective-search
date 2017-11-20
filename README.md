@@ -10,7 +10,6 @@ The methodology of decomposing a large-scale collection into subunits based on i
 
 ## Architecture Overview
 
-![Overview](https://github.com/rajanim/selective-search/blob/master/docs/selective_search.jpg)
 ![Overview1](selective-search/docs/selective_search.jpg)
 
 
