@@ -10,7 +10,7 @@ The methodology of decomposing a large-scale collection into subunits based on i
 
 ## Architecture Overview
 
-![Overview1](https://drive.google.com/file/d/1oSucu26t5fEa69bvYVzHwboqvoBls2kF/view?usp=sharing)
+![Overview1](https://raw.githubusercontent.com/rajanim/selective-search/master/docs/selective_search.jpg)
 
 
 ## Technology Stack 
