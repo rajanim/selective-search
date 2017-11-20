@@ -8,11 +8,16 @@ Selective search is a Distributed Information Retrieval(DIR) project for large-s
 The methodology of decomposing a large-scale collection into subunits based on its records content similarity is termed as “Topic Based Partitioning”, and searching across only fewer relevant shards for given search query is termed as “Selective Search” in a [publication](online.sfsu.edu/ak/#publications) by Kulkarni et al. 
 
 
-## Technologies Stack 
-Programmed mainly in Scala. 
+## Architecture Overview
+
+
+
+## Technology Stack 
+Programming language : Scala
+Extended frameworks : Apache Spark for distributed computing, Apache Solr for distributed search. 
+
 Extends Apache Spark's Machine Learning Libraries(MLLib) for implementation of Topic Based Partitioning and runs on top of Spark Cluster. 
-Extends Apache Solr Information Retrieval(Search) libraries for implementation of various selective search algorithms and search cluster itself is setup on Apache SolrCloud.
-For integration between Apache Spark and Apache Solr, Spark-Solr libraries are utilized.
+Extends Apache Solr Information Retrieval(Search) libraries for implementation of various selective search algorithms and search cluster itself is setup on Apache SolrCloud. For integration between Apache Spark and Apache Solr, Spark-Solr libraries are utilized.
 
 
 ## Version Compatibility 
