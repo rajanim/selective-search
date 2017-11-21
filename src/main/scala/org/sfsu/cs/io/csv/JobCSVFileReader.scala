@@ -1,11 +1,12 @@
-package org.sfsu.cs.io.text
+package org.sfsu.cs.io.csv
 
-import java.util.UUID
+import java.util.{Calendar, UUID}
 
 import org.apache.spark.rdd.RDD
 import org.apache.spark.sql.SQLContext
 import org.apache.spark.{SparkConf, SparkContext}
-import org.sfsu.cs.document.StringDocument
+import org.sfsu.cs.document.{StringDocument, TFDocument}
+import org.sfsu.cs.preprocess.CustomAnalyzer
 
 /**
   * Created by rajani.maski on 8/2/17.
@@ -39,6 +40,31 @@ object JobCSVFileReader {
      val filteredTexts = texts.filter(item => item.contents.trim.isEmpty)
 
    sc.parallelize(filteredTexts)
+
+  }
+
+
+  /**
+    * Get tuple of file name(id) and tf map with term as key and tf count as value.
+    * @param sc
+    * @param stringDocs
+    * @param partitions
+    * @param stopWordsFilePath
+    * @return
+    */
+  def getTFDocuments(sc: SparkContext, stringDocs: RDD[StringDocument], partitions: Int,  stopWordsFilePath: String): RDD[TFDocument] = {
+    println(s"LOG: Start converting the raw data (html) to text: ${Calendar.getInstance().getTime()} ")
+    val plainTextDocuments = stringDocs.map(doc ⇒ new StringDocument(doc.id, CustomAnalyzer.htmlToText(doc.contents)))
+    println(s"LOG: End converting the raw data (html) to text: ${Calendar.getInstance().getTime()} ")
+    val stopWords = sc.broadcast(scala.io.Source.fromFile(stopWordsFilePath).getLines().toSet).value
+    println("stopwords: ", stopWords.take(10))
+    CustomAnalyzer.initStem()
+    val tfDocs = plainTextDocuments.map(doc => {
+      val tf = CustomAnalyzer.tokenizeFilterStopWordsStem(doc.contents, stopWords)
+      new TFDocument(doc.id, tf)
+    })
+
+    tfDocs
 
   }
 

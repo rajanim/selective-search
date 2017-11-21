@@ -1,11 +1,11 @@
-package org.sfsu.cs.io.text
+package org.sfsu.cs.io.csv
 
 import java.io.{FileReader, IOException}
 import java.util
 
-import org.apache.commons.csv.CSVFormat
 import com.lucidworks.spark.util.SolrSupport
 import com.lucidworks.spark.util.SolrSupport.getCachedCloudClient
+import org.apache.commons.csv.CSVFormat
 import org.apache.solr.common.SolrInputDocument
 import org.apache.spark.sql.Row
 import org.apache.spark.{SparkConf, SparkContext}
