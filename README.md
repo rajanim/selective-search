@@ -5,7 +5,7 @@ Selective search is a Distributed Information Retrieval(DIR) project for large-s
  
  Goal of the project is to implement an efficient and effective distributed search system without affecting the search quality and aiming to reduce search cost. 
  
-The methodology of decomposing a large-scale collection into subunits based on its records content similarity is termed as “Topic Based Partitioning”, and searching across only fewer relevant shards for given search query is termed as “Selective Search” in a [publication](online.sfsu.edu/ak/#publications) by Kulkarni et al. 
+The methodology of decomposing a large-scale collection into subunits based on its records content similarity is termed as “Topic Based Partitioning”, and searching across only fewer relevant shards for given search query is termed as “Selective Search” in a [publication](http://online.sfsu.edu/ak/#publications) by Kulkarni et al. 
 
 
 
