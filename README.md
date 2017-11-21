@@ -133,12 +133,21 @@ Follow the steps listed below to execute(run) selective search for any other(cus
 
 
 ## Configuration and Tuning
+Required configurations
+* All the softwares required to compile source, as listed under [Compile]() section are required to be installed
+* Solrcloud need to be configured, either on local machine or remote, if setup on remote, make sure to specify correct ip and port while executing the job. Config steps [here]()
+* Spark stand alone cluster setup on local machine to run job via spark-submit.sh
 
+Tuning
+* Spark parameters setting --executor-memory, -driver-memory based on memory available on machine.
+* Spark driver may report maxResultSize exception, it can be increased by passing param `"spark.driver.maxResultSize=2000"` it cannote exceed 2048
+* For Apache solr, allocate Xmx while starting solr, parameter -m xg
 
-## Troubleshooting tips and suggestions
-Memory settings
-
-Spark tuning
 
 
 ## References
+[1] Anagha Kulkarni. 2015. Selective Search: Efficient and Effective Large­ scale Search. ACM Transactions on Information Systems, 33(4). ACM. 2015.
+[2] Anagha Kulkarni. 2010. Topic-based Index Partitions for Efficient and Effective Selective Search. 8th Workshop on Large-Scale Distributed Systems for Information Retrieval.
+[3] Rolf Jagerman, Carsten Eickhoff. Web-scale Topic Models in Spark: An Asynchronous Parameter Server. 2016.
+[4] Clueweb09 dataset. Lemur Project.
+[5] 20Newsgroups. Jrennie. qwone.com/~jason/20Newsgroups
