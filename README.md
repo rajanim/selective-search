@@ -14,7 +14,7 @@ The methodology of decomposing a large-scale collection into subunits based on i
 
 ![Overview1](https://raw.githubusercontent.com/rajanim/selective-search/master/docs/general_selective_search_arc.jpg)
 
-#
+
 
 # Current Implementation
 
@@ -52,7 +52,7 @@ The methodology of decomposing a large-scale collection into subunits based on i
 
 
  
-# Getting started
+# Getting Started
 
 ### Compile
 To compile the current version of selective-search, you will need the following list of software running on your machine.
@@ -72,12 +72,20 @@ After verification of required softwares setup, download the source code and exe
 
 
 ### Run
-To run the selective-search project on your localhost, you would initially require Apache SolrCloud configured, to setup Apache Solr, follow instructions provided here: ()
-Post that setup, you have three ways to run selective-search
-    1) Run as a jar file, this will spin spark locally and shuts down after program completion.
-    2) Run on IntelliJ/Eclipse IDE.
-    3) Launching a Spark Cluster and running on it.
+To run the selective-search project on your localhost(machine), you would require Apache SolrCloud configured. If you do not have it already configured, follow instructions provided here: ()
 
+After the SolrCloud setup, there are three ways to run selective-search
+ 
+   1.  Run as a jar file, this will spin local spark and executes the job. 
+   2.  Run on an IDE, it could be either IntelliJ/Eclipse.
+   3.  Launch a Spark Cluster and execute job on it.
+   
+#### 1. Run as a jar file 
+
+java -jar 
+  
+    
+    
 
 ## Examples
 To execute selective search for custom(any other) dataset by extending the current project, follow the below steps
