@@ -30,7 +30,7 @@ The methodology of decomposing a large-scale collection into subunits based on i
 
 
 ## Version Compatibility 
-1. Java JDK 8 java version "1.8.0_131"
+1. Java JDK 8 version "1.8.0_131"
 
 2. Scala 2.12.2
 
@@ -75,7 +75,7 @@ After verification of required softwares setup, download the source code and exe
 To run the selective-search project on localhost(machine), it is required for Apache SolrCloud to be configured. If you do not have it already configured, follow instructions provided here: ()
 
 After the SolrCloud setup, there are two ways to run selective-search, either set it up on an IDE—it could be either IntelliJ/Eclipse or launch a Spark Cluster and execute job on it.
-   
+
 
 #### 1. Run on IDE
 
@@ -90,6 +90,35 @@ After the SolrCloud setup, there are two ways to run selective-search, either se
 
 #### 2. Run on Spark Cluster
 
+Configure Spark Cluster on localhost.
+
+* Download Apache Spark (current implementation runs on spark `spark-2.0.0-bin-hadoop2.7`)
+* Go to terminal and navigate to the path where spark unzip is located. For example, `cd /Users/user_name/softwares/spark-2.0.0-bin-hadoop2.7`
+* Configure spark
+    * start spark master `./sbin/start-master.sh `
+    * configure spark slave instances
+        * create spark-env.sh file using the provided template:
+    	`cp ./conf/spark-env.sh.template ./conf/spark-env.sh`
+    
+    	* append a configuration param to the end of the file:
+    	`echo "export SPARK_WORKER_INSTANCES=4" >> ./conf/spark-env.sh`
+   * start spark slaves instances
+    `./sbin/start-slaves.sh <master_url> [master url: available or seen on spark web-ui after master is started, at: localhost:8080]`
+
+Run the selective search project on spark cluster.
+`nohup ./bin/spark-submit --master spark://RajaniM-1159:7077 --num-executors 2  --executor-memory 8g  --driver-memory 12g --conf "spark.rpc.message.maxSize=2000" --conf "spark.driver.maxResultSize=2000"  --class com.sfsu.cs.main.TopicalShardsCreator  /Users/rajanishivarajmaski/selective-search/target/selective-search-1.0-SNAPSHOT.jar TopicalShardsCreator  -zkHost localhost:9983 -collection word-count -warcFilesPath /Users/rajani.maski/rm/cluweb_catb_part/ -dictionaryLocation /Users/rajani.maski/rm/spark-solr-899/ -numFeatures 25000 -numClusters 50 -numPartitions 50 -numIterations 30  &`
+
+   
+### Setup SolrCloud
+* Download Apache Solr as zip(current implementation runs on solr 6.2.1)
+* Got to terminal and navigate to path where solr unzip directory is located.
+* Start solr in cloud mode
+
+	`./bin/solr start -c -m 4g`
+* Once you have solr started with welcome message as 'Happy Searching!', you should be able to connect to its admin UI
+`http://localhost:8983/solr/#/`, navigate to collections: `http://localhost:8983/solr/#/~collections`
+* Add a collection by giving a collection name, choose config set, it should be data_driven_schema_configs.  Other key value pair inputs as seen here in screenshot : [click here]() 
+* Confirm if the collection is created succesfully by navigating to cloud admin ui `http://localhost:8983/solr/#/~cloud` and you should be able to see newly created collection
 
 ## Examples
 Follow the steps listed below to execute(run) selective search for any other(custom/specific)dataset.
@@ -104,7 +133,6 @@ Follow the steps listed below to execute(run) selective search for any other(cus
 
 
 ## Configuration and Tuning
-Current configuration
 
 
 ## Troubleshooting tips and suggestions
