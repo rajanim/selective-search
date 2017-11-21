@@ -74,21 +74,29 @@ After verification of required softwares setup, download the source code and exe
 ### Run
 To run the selective-search project on your localhost(machine), you would require Apache SolrCloud configured. If you do not have it already configured, follow instructions provided here: ()
 
-After the SolrCloud setup, there are three ways to run selective-search
- 
-   1.  Run as a jar file, this will spin local spark and executes the job. 
-   2.  Run on an IDE, it could be either IntelliJ/Eclipse.
-   3.  Launch a Spark Cluster and execute job on it.
+After the SolrCloud setup, there are two ways to run selective-search, either set it up on an IDE—it could be either IntelliJ/Eclipse or launch a Spark Cluster and execute job on it.
    
-#### 1. Run as a jar file 
 
-java -jar 
-  
-    
-    
+#### 1. Run on IDE
+
+* Download or clone the project
+`git clone https://github.com/rajanim/selective-search.git`
+* Compile source code by following steps listed under "Compile" section
+* Import the current project as Maven project into the IDE
+* To test this setup, go to the test app `App.scala`, right click and run. It should print 'Hello World!' This confirms scala code is compiled and running successfully.     
+* To test selective search setup, go to `TestTextFileParser.scala`, modify the root path as per your directory settings, run the test cases(right click and choose run option)
+* To execute 20newsgroup selective search, navigate to `org.sfsu.cs.io.newsgroup.NewsgroupRunner.scala`, modify input directory path to your local machine directory path, run.
+* Navigate to /test/org.sfsu.cs.* to test various functionality implemented.     
+
 
 ## Examples
-To execute selective search for custom(any other) dataset by extending the current project, follow the below steps
+Follow the steps listed below to execute(run) selective search for any other(custom/specific)dataset.
+
+* Create a scala class similar to NewsgroupRunner.scala
+* Obtain spark context by creating a new SparkInstance and invoking create method
+`val sc = sparkInstance.createSparkContext("class name")`
+* If input dataset is 
+
 
 
 
