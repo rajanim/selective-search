@@ -146,8 +146,8 @@ Tuning
 
 
 ## References
-[1] Anagha Kulkarni. 2015. Selective Search: Efficient and Effective Large­ scale Search. ACM Transactions on Information Systems, 33(4). ACM. 2015.
-[2] Anagha Kulkarni. 2010. Topic-based Index Partitions for Efficient and Effective Selective Search. 8th Workshop on Large-Scale Distributed Systems for Information Retrieval.
-[3] Rolf Jagerman, Carsten Eickhoff. Web-scale Topic Models in Spark: An Asynchronous Parameter Server. 2016.
-[4] Clueweb09 dataset. Lemur Project.
-[5] 20Newsgroups. Jrennie. qwone.com/~jason/20Newsgroups
+1. Anagha Kulkarni. 2015. Selective Search: Efficient and Effective Large­ scale Search. ACM Transactions on Information Systems, 33(4). ACM. 2015.
+2.  Anagha Kulkarni. 2010. Topic-based Index Partitions for Efficient and Effective Selective Search. 8th Workshop on Large-Scale Distributed Systems for Information Retrieval.
+3.  Rolf Jagerman, Carsten Eickhoff. Web-scale Topic Models in Spark: An Asynchronous Parameter Server. 2016.
+4.  Clueweb09 dataset. Lemur Project.
+5.  20Newsgroups. Jrennie. qwone.com/~jason/20Newsgroups
