@@ -117,7 +117,7 @@ Run the selective search project on spark cluster.
 	`./bin/solr start -c -m 4g`
 * Once you have solr started with welcome message as 'Happy Searching!', you should be able to connect to its admin UI
 `http://localhost:8983/solr/#/`, navigate to collections: `http://localhost:8983/solr/#/~collections`
-* Add a collection by giving a collection name, choose config set, it should be data_driven_schema_configs.  Other key value pair inputs as seen here in screenshot : [click here]() 
+* Add a collection by giving a collection name, choose config set, it should be data_driven_schema_configs.  Other key value pair inputs as seen here in screenshot : [click here](https://raw.githubusercontent.com/rajanim/selective-search/master/docs/misc/solrcloud_implicit.png) 
 * Confirm if the collection is created succesfully by navigating to cloud admin ui `http://localhost:8983/solr/#/~cloud` and you should be able to see newly created collection
 
 ## Examples
