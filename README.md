@@ -158,5 +158,5 @@ Tuning
 3.  Rolf Jagerman, Carsten Eickhoff. Web-scale Topic Models in Spark: An Asynchronous Parameter Server. 2016.
 4.  Clueweb09 dataset. Lemur Project.
 5.  20Newsgroups. Jrennie. qwone.com/~jason/20Newsgroups
-6.  CORI
-7.  ReDDE
+6.  Mon Shih Chuang and Anagha Kulkarni. Improving Shard Selection for Selective Search.  Proceedings of the Asia Information Retrieval Societies Conference. November 2017
+7.  L. Si and J. Callan. (2003.) "Relevant document distribution estimation method for resource selection." In Proceedings of the Twenty Sixth Annual International ACM SIGIR Conference on Research and Development in Information Retrieval. Toronto: ACM.
