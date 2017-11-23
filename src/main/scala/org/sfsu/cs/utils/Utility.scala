@@ -21,6 +21,10 @@ object Utility {
 
   }
 
+  def writeToFile(data:String) ={
+    val file = getFilePath()
+    writeToFile(data,file)
+  }
   def getFilePath(): String = {
     val path = System.getProperty("user.dir") + "/spark_cluster_job_op/"
     if(!Files.exists(Paths.get(path)))
