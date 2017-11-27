@@ -18,7 +18,7 @@ selective-search.ipr
 selective-search.iws
 
 .idea/
-_config.yml
+
 target/
 /spark-warehouse
 Spark_KMean_Model/
