@@ -50,6 +50,13 @@ The methodology of decomposing a large-scale collection into subunits based on i
 ## Implementation Architecture 
 ![Overview2](https://raw.githubusercontent.com/rajanim/selective-search/master/docs/impl_selective_search.jpg)
 
+# Features
+* Converting textual data to TF-IDF vectors either based on dictionary of terms supplied as input or otherwise dictionary is generated from training dataset by applying TF-IDF weights to terms.
+* Custom KMeans algorithm implementation for clustering textual dataset, extending Apache Spark MLLib libraries, implement both similarity computation measures, namely, Cosine and Euclidean.
+* Index records into Solrcloud.
+* Selective search algorithms implementation, namely, CORI[6] and ReDDE[7]
+* Parsers for Clueweb09 WARC Records, 20newsgroup dataset, and in general, text dataset.
+* Text analyzers that strips html, extracts texts content, tokenize, filter by stopwords and apply KStemmer. 
 
  
 # Getting Started
@@ -108,13 +115,6 @@ Configure Spark Cluster on localhost.
 Run the selective search project on spark cluster.
 `nohup ./bin/spark-submit --master spark://RajaniM-1159:7077 --num-executors 2  --executor-memory 8g  --driver-memory 12g --conf "spark.rpc.message.maxSize=2000" --conf "spark.driver.maxResultSize=2000"  --class com.sfsu.cs.main.TopicalShardsCreator  /Users/rajanishivarajmaski/selective-search/target/selective-search-1.0-SNAPSHOT.jar TopicalShardsCreator  -zkHost localhost:9983 -collection word-count -warcFilesPath /Users/rajani.maski/rm/cluweb_catb_part/ -dictionaryLocation /Users/rajani.maski/rm/spark-solr-899/ -numFeatures 25000 -numClusters 50 -numPartitions 50 -numIterations 30  &`
 
-### Features
-* Converting textual data to TF-IDF vectors either based on provided dictionary terms or dictionary is generated from training dataset by applying TF-IDF weights to terms.
-* Custom KMeans algorithm implementation for clustering textual dataset, extending Apache Spark MLLib libraries, implement both similarity computation measures, namely, Cosine and Euclidean.
-* Index records into Solrcloud.
-* Selective search algorithms implementation, namely, CORI[6] and ReDDE[7]
-* Parsers for Clueweb09 WARC Records, 20newsgroup dataset, and in general, text dataset.
-* Text analyzers that strips html, extracts texts content, tokenize, filter by stopwords and apply KStemmer. 
 
 ### Setup SolrCloud
 * Download Apache Solr as zip(current implementation runs on solr 6.2.1)
