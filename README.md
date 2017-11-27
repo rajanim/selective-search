@@ -17,7 +17,7 @@ The methodology of decomposing a large-scale collection into subunits based on i
 
 
 # Current Implementation
-
+Selective Search is programmed in Scala. It extends libraries of Apache Spark MLLib for unsupervised clustering and Apache Solr libraries for Search and Information Retrieval.
 
 ## Technology Stack 
 * Programming language : Scala
