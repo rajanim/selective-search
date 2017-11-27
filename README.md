@@ -8,6 +8,25 @@ Selective search is a Distributed Information Retrieval(DIR) project for large-s
 The methodology of decomposing a large-scale collection into subunits based on its records content similarity is termed as “Topic Based Partitioning”, and searching across only fewer relevant shards for given search query is termed as “Selective Search” in a [publication](http://online.sfsu.edu/ak/#publications) by Kulkarni et al. 
 
 
+# Table of Content
+1. [General Architecture](https://github.com/rajanim/selective-search#general-architecture)
+2. [Current Implementation](https://github.com/rajanim/selective-search#current-implementation)
+    1. [Technology Stack](https://github.com/rajanim/selective-search#technology-stack)
+    2. [Version Compatibility](https://github.com/rajanim/selective-search#version-compatibility)
+    3. [Implementation Architecture](https://github.com/rajanim/selective-search#implementation-architecture)
+    4. [Features](https://github.com/rajanim/selective-search#features)
+3. [Getting Started](https://github.com/rajanim/selective-search#getting-started)
+    1. [Compile](https://github.com/rajanim/selective-search#compile)
+    2. [Run](https://github.com/rajanim/selective-search#run)
+        1. [Run on IDE](https://github.com/rajanim/selective-search#1-run-on-ide)
+        2. [Run on Spark Cluster](https://github.com/rajanim/selective-search#2-run-on-spark-cluster)
+    3. [Setup Solrcloud](https://github.com/rajanim/selective-search#setup-solrcloud)
+4. [Examples](https://github.com/rajanim/selective-search#examples)
+5. [Configuration and Tuning](https://github.com/rajanim/selective-search#configuration-and-tuning)
+6. [Questions](https://github.com/rajanim/selective-search#questions)
+7. [References](https://github.com/rajanim/selective-search#references)
+
+
 
 # General Architecture
 
