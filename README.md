@@ -55,7 +55,7 @@ The methodology of decomposing a large-scale collection into subunits based on i
 # Getting Started
 
 ### Compile
-To compile the current version of selective-search, you will need the following list of software running on your machine.
+To compile the current version of selective-search, you will need to have the following list of software running on your machine.
 * Java, Scala, Apache Maven (versions as listed in version compatibility section)
  
  In order to verify the above listed softwares are running on your machine, confirm with commands below.
@@ -151,6 +151,8 @@ Tuning
 * For Apache solr, allocate Xmx while starting solr. For example, to allocate 4g, `./bin/solr start -c -m 4g`
 
 
+## Questions
+If you have additional questions related to implementation, experimental results, benchmarks or usage of   `Selective-Search`, happy to help. Please email to rajani.maski@gmail.com
 
 ## References
 1. Anagha Kulkarni. 2015. Selective Search: Efficient and Effective Large­ scale Search. ACM Transactions on Information Systems, 33(4). ACM. 2015.
