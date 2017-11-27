@@ -8,7 +8,7 @@ Selective search is a Distributed Information Retrieval(DIR) project for large-s
 The methodology of decomposing a large-scale collection into subunits based on its records content similarity is termed as “Topic Based Partitioning”, and searching across only fewer relevant shards for given search query is termed as “Selective Search” in a [publication](http://online.sfsu.edu/ak/#publications) by Kulkarni et al. 
 
 
-# Table of Content
+# Table of Contents
 1. [General Architecture](https://github.com/rajanim/selective-search#general-architecture)
 2. [Current Implementation](https://github.com/rajanim/selective-search#current-implementation)
     1. [Technology Stack](https://github.com/rajanim/selective-search#technology-stack)
