@@ -17,7 +17,7 @@ The methodology of decomposing a large-scale collection into subunits based on i
 
 
 # Current Implementation
-Selective Search is programmed in Scala. It extends libraries of Apache Spark MLLib for unsupervised clustering and Apache Solr libraries for Search and Information Retrieval.
+Selective Search is programmed in Scala. It extends libraries of Apache Spark MLLib for unsupervised clustering and distributed computing, Apache Solr libraries for Search and Information Retrieval.
 
 ## Technology Stack 
 * Programming language : Scala
@@ -27,7 +27,8 @@ Selective Search is programmed in Scala. It extends libraries of Apache Spark ML
     * Apache Solr for Distributed Search
         * Extends Apache Solr's Information Retrieval(Search) libraries for implementation of various selective search algorithms and search cluster itself is setup on Apache SolrCloud. 
     * For integration between Apache Spark and Apache Solr, Spark-Solr libraries are utilized.
-
+* Tools
+    * Maven for build, IntelliJ for development, Git for SCM
 
 ## Version Compatibility 
 1. Java JDK 8 version "1.8.0_131"
