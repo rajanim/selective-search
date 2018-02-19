@@ -33,7 +33,6 @@ public class CategoryBQrelsDocsParser {
                     fileName = line.substring(line.indexOf(':') + 1);
                 }
                else if (line.equals("</html>")) {
-                   // System.out.println(builder.toString() + "" + fileName.trim());
                     writeToFile(builder.toString(), fileName.trim()+".html");
                      builder = new StringBuilder();
                 }else{
