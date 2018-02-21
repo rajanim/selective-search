@@ -170,7 +170,10 @@ Tuning
 * Spark driver may report maxResultSize exception, it can be increased by passing param `"spark.driver.maxResultSize=2000"` it cannote exceed 2048
 * For Apache solr, allocate Xmx while starting solr. For example, to allocate 4g, `./bin/solr start -c -m 4g`
 
-
+## Troubleshooting
+* How to create Solr Cloud collection with `Implicit Routing`
+Sample curl command to create a collection 
+`http://localhost:8983/solr/admin/collections?action=CREATE&name=NewsGroupImplicit&numShards=20&replicationFactor=1&maxShardsPerNode=20&router.name=implicit&shards=shard1,shard2,shard3,shard4,shard5,shard6,shard7,shard8,shard9,shard10,shard11,shard12,shard13,shard14,shard15,shard16,shard17,shard18,shard19,shard20&collection.configName=data_driven_schema_configs&router.field=_route_`
 ## Questions
 If you have additional questions related to implementation, experimental results, benchmarks or usage of   `Selective-Search`, happy to help. Please email to rajani.maski@gmail.com
 

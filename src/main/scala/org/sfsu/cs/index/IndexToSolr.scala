@@ -29,6 +29,7 @@ object IndexToSolr {
   }
 
 
+
   /**
     *
     * @param doc
