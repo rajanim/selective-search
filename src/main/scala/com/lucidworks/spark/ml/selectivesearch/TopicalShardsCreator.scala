@@ -1,8 +1,7 @@
-package org.sfsu.cs.main
+package com.lucidworks.spark.ml.selectivesearch
 
 import java.util.Calendar
 
-import breeze.linalg.SparseVector
 import com.lucidworks.spark.SparkApp.RDDProcessor
 import org.apache.commons.cli.{CommandLine, Option}
 import org.apache.spark.rdd.RDD
@@ -21,8 +20,9 @@ import org.slf4j.{Logger, LoggerFactory}
   */
 class TopicalShardsCreator extends RDDProcessor {
 
-  val  logger: Logger= LoggerFactory.getLogger(TopicalShardsCreator.this.getName)
-  def getName: String = "TopicalShardsCreator"
+  val logger: Logger = LoggerFactory.getLogger(TopicalShardsCreator.this.getName)
+
+  def getName: String = "topicalshardscreator"
 
   var stopWordsFilePath = ""
   var numFeatures: Int = 0
@@ -36,7 +36,7 @@ class TopicalShardsCreator extends RDDProcessor {
 
   var saveModelAt: String = null
   var modelPath: String = null
-  var dictionaryLocation : String = null
+  var dictionaryLocation: String = null
 
   var collection: String = null
   var zkHost: String = null
@@ -99,7 +99,7 @@ class TopicalShardsCreator extends RDDProcessor {
         .hasArg()
         .desc("Path to file containing list of stopwords separated by new line")
         .longOpt("stopWordsFilePath").build(),
-      Option.builder("Train Phase/Project Phase")
+      Option.builder()
         .hasArg()
         .desc("Input 0 or 1, 0 for train phase and 1 for project/test phase." +
           "For training phase, required input is path to training data set/files, " +
@@ -114,9 +114,9 @@ class TopicalShardsCreator extends RDDProcessor {
     val sc = new SparkContext(conf)
     logger.warn("Spark context obtained", sc.sparkUser)
     warcFilesPath = cli.getOptionValue("warcFilesPath")
-    if (warcFilesPath.isEmpty) {
+    if (warcFilesPath== null || warcFilesPath.isEmpty) {
       textFilesPath = cli.getOptionValue("textFilesPath")
-      if (textFilesPath.isEmpty)
+      if (textFilesPath==null || textFilesPath.isEmpty)
         throw new Exception(" Input files (warcFilesPath/textFilesPath path not found")
     }
     parseCmdLineArgsToVariables(cli)
@@ -139,6 +139,7 @@ class TopicalShardsCreator extends RDDProcessor {
 
   /**
     * invoke kmeans for the vectors and return kmean centroids(array of vectors)
+    *
     * @param docVectors
     * @return
     */
@@ -172,10 +173,10 @@ class TopicalShardsCreator extends RDDProcessor {
 
 
     val phase = cli.getOptionValue("phase", "0").toInt
-    if(phase==1){
+    if (phase == 1) {
       modelPath = cli.getOptionValue("modelPath")
       dictionaryLocation = cli.getOptionValue("dictionaryLocation")
-      if(modelPath.isEmpty || dictionaryLocation.isEmpty)
+      if (modelPath.isEmpty || dictionaryLocation.isEmpty)
         throw new Exception("modelPath and dictionaryLocation required for predict/project phase")
     }
     saveModelAt = cli.getOptionValue("saveModel", "")

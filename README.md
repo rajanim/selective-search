@@ -146,7 +146,7 @@ Run the selective search project on spark cluster.
 `http://localhost:8983/solr/#/`, navigate to collections: `http://localhost:8983/solr/#/~collections`
 * Add a collection by giving a collection name, choose config set, it should be data_driven_schema_configs.  Other key value pair inputs as seen here in screenshot : [click here](https://raw.githubusercontent.com/rajanim/selective-search/master/docs/misc/solrcloud_implicit.png) 
 * Confirm if the collection is created succesfully by navigating to cloud admin ui `http://localhost:8983/solr/#/~cloud` and you should be able to see newly created collection
-
+* Another approach to create a collection is via command line. Example command `./bin/solr create_collection -n data_driven_schema_configs -c collection_name -p portNumber -shards numShards`
 ## Examples
 Follow the steps listed below to execute(run) selective search for any other(custom/specific)dataset.
 
@@ -155,7 +155,7 @@ Follow the steps listed below to execute(run) selective search for any other(cus
 `val sc = sparkInstance.createSparkContext("class name")`
 * Transform input documents into RDD of TF Documents, example references as listed below
     * If input dataset is collection of text files, utilize the text parsers apis available under `org.sfsu.cs.io.text.TextFileParser.scala` to obtain text docs mapped to `org.sfsu.cs.document.TFDocument`
-    * if input dataset is collection of clueweb records, utilize the parser available under `org.sfsy.cs.io.clueweb09`
+    * if input dataset is collection of clueweb records, utilize the parser available under `org.sfsu.cs.io.clueweb09`
     * If input dataset is csv file, utilize the parser apis available under `org.sfsu.cs.io.csv`
 
 
