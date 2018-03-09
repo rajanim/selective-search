@@ -152,6 +152,13 @@ For `Selective Search`, we require a solr collection with `implicit routing` str
 * Example curl command to create a collection of 20 shards with implicit routing
 `http://localhost:8983/solr/admin/collections?action=CREATE&name=NewsGroupImplicit&numShards=20&replicationFactor=1&maxShardsPerNode=20&router.name=implicit&shards=shard1,shard2,shard3,shard4,shard5,shard6,shard7,shard8,shard9,shard10,shard11,shard12,shard13,shard14,shard15,shard16,shard17,shard18,shard19,shard20&collection.configName=data_driven_schema_configs&router.field=_route_`
 
+### Visualization
+* Cluster allocation visualization by utilizing [Banana](https://github.com/lucidworks/banana) dashboard.
+* Tutorial and reference notes [here](https://doc.lucidworks.com/lucidworks-hdpsearch/2.5/Guide-Banana.html)
+* Configure Banana on your solr instance and connect to banana dashboard via http url 
+`http://localhost:8983/solr/banana/src/index.html#/dashboard`
+
+
 ## Examples
 Follow the steps listed below to execute(run) selective search for any other(custom/specific)dataset.
 

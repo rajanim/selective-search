@@ -2,18 +2,22 @@ package com.lucidworks.spark.ml.selectivesearch
 
 import java.util.Calendar
 
+import breeze.numerics.log10
 import com.lucidworks.spark.SparkApp.RDDProcessor
 import org.apache.commons.cli.{CommandLine, Option}
+import org.apache.spark.mllib.linalg.{Vector, Vectors}
 import org.apache.spark.rdd.RDD
 import org.apache.spark.{SparkConf, SparkContext}
 import org.sfsu.cs.clustering.kmeans.KMeanClustering
-import org.sfsu.cs.document.DocVector
+import org.sfsu.cs.document.{DocVector, TFDocument}
 import org.sfsu.cs.index.IndexToSolr
 import org.sfsu.cs.io.clueweb09.Clueweb09Parser
 import org.sfsu.cs.io.text.TextFileParser
 import org.sfsu.cs.utils.Utility
 import org.sfsu.cs.vectorize.VectorImpl
 import org.slf4j.{Logger, LoggerFactory}
+
+import scala.collection.mutable
 
 /**
   * Created by rajanishivarajmaski1 on 10/25/17.
@@ -40,7 +44,7 @@ class TopicalShardsCreator extends RDDProcessor {
 
   var collection: String = null
   var zkHost: String = null
-
+  var phase: Int = 0
 
   def getOptions: Array[Option] = {
     Array(
@@ -114,9 +118,9 @@ class TopicalShardsCreator extends RDDProcessor {
     val sc = new SparkContext(conf)
     logger.warn("Spark context obtained", sc.sparkUser)
     warcFilesPath = cli.getOptionValue("warcFilesPath")
-    if (warcFilesPath== null || warcFilesPath.isEmpty) {
+    if (warcFilesPath == null || warcFilesPath.isEmpty) {
       textFilesPath = cli.getOptionValue("textFilesPath")
-      if (textFilesPath==null || textFilesPath.isEmpty)
+      if (textFilesPath == null || textFilesPath.isEmpty)
         throw new Exception(" Input files (warcFilesPath/textFilesPath path not found")
     }
     parseCmdLineArgsToVariables(cli)
@@ -124,17 +128,96 @@ class TopicalShardsCreator extends RDDProcessor {
     if (warcFilesPath != null && !warcFilesPath.isEmpty) {
       val stringDocs = Clueweb09Parser.getWarcRecordsViaFIS(sc, warcFilesPath, partitions = numPartitions)
       val tfDocs = Clueweb09Parser.getTFDocuments(sc, stringDocs, numPartitions, stopWordsFilePath)
-      val docVectors = VectorImpl.getDocVectors(sc, tfDocs, numFeatures)
-      val kMeansResult = initKmeans(docVectors)
-      IndexToSolr.indexToSolr(docVectors, collection, zkHost, kMeansResult)
+      tfDocs.cache()
+      if (phase == 1) {
+        executeProjectionPhase(sc, tfDocs)
+      }
+      else {
+        val docVectors = VectorImpl.getDocVectors(sc, tfDocs, numFeatures)
+        val kMeansResult = initKmeans(docVectors)
+        IndexToSolr.indexToSolr(docVectors, zkHost, collection, kMeansResult)
+      }
     } //work for text files
     else {
       val tfDocs = TextFileParser.getTFDocuments(sc, textFilesPath, numPartitions, stopWordsFilePath)
-      val docVectors = VectorImpl.getDocVectors(sc, tfDocs, numFeatures)
-      val kMeansResult = initKmeans(docVectors)
-      IndexToSolr.indexToSolr(docVectors, collection, zkHost, kMeansResult)
+      if (phase == 1) {
+        executeProjectionPhase(sc, tfDocs)
+      }
+      else {
+        val docVectors = VectorImpl.getDocVectors(sc, tfDocs, numFeatures)
+        val kMeansResult = initKmeans(docVectors)
+        IndexToSolr.indexToSolr(docVectors, zkHost, collection, kMeansResult)
+      }
     }
     0
+  }
+
+  /**
+    * Project documents to clusters utilizing the model/centroids generated during train phase.
+    *
+    * @param sc
+    * @param tfDocs
+    */
+  def executeProjectionPhase(sc: SparkContext, tfDocs: RDD[TFDocument]): Unit = {
+    val dict = readDict(dictionaryLocation, numFeatures)
+    val idfs = sc.parallelize(dict.toSeq)
+    val termIds = idfs.keys.zipWithIndex().collectAsMap()
+
+
+    val bTermIds = sc.broadcast(termIds).value
+    val bIdfs = sc.broadcast(idfs.collectAsMap()).value
+
+
+    println(s"LOG: Start featurizing map to vectors: ${Calendar.getInstance().getTime()} ")
+
+    val docVectors = tfDocs.map(doc => {
+      val tfIdfMap = mutable.HashMap.empty[Int, Double]
+      doc.tfMap.foreach(tfTuple => {
+        if (bTermIds.contains(tfTuple._1)) {
+          val tfidf = (1 + log10(tfTuple._2)) * bIdfs(tfTuple._1)
+          val i = bTermIds(tfTuple._1)
+          tfIdfMap.put(i.toInt, tfidf)
+
+        }
+      })
+      new DocVector(doc.id, doc.tfMap, Vectors.sparse(numFeatures, tfIdfMap.toSeq))
+    })
+
+    println(s"LOG: End of featurizing map to vectors: ${Calendar.getInstance().getTime()} ")
+
+    val kmeanCentroids = getCentroidsFromFile(modelPath)
+
+    IndexToSolr.indexToSolr(docVectors, zkHost, collection, kmeanCentroids)
+
+  }
+
+  /**
+    * Model
+    * @param file
+    * @return
+    */
+  def getCentroidsFromFile(file: String): Array[Vector] = {
+    val vectors = scala.io.Source.fromFile(file).getLines()
+    val array = new scala.collection.mutable.ArrayBuffer[Vector]()
+    var i = 0
+    vectors.foreach(str => {
+      array += getVector(str)
+      i += 1
+    })
+    array.toArray
+  }
+
+  def getVector(str: String): Vector = {
+    Vectors.parse(str)
+
+  }
+
+  def readDict(file: String, n: Int = 10000000): Map[Any, Double] = {
+    scala.io.Source.fromFile(file).getLines().take(n).map(str => {
+      val arr = str.split("->")
+      (arr(0).trim, arr(1).toDouble)
+    }).toMap
+
   }
 
   /**
@@ -172,7 +255,7 @@ class TopicalShardsCreator extends RDDProcessor {
     textFilesPath = cli.getOptionValue("textFilesPath", "")
 
 
-    val phase = cli.getOptionValue("phase", "0").toInt
+    phase = cli.getOptionValue("trainTestPhaseFlg", "0").toInt
     if (phase == 1) {
       modelPath = cli.getOptionValue("modelPath")
       dictionaryLocation = cli.getOptionValue("dictionaryLocation")

@@ -11,7 +11,7 @@ import scala.collection.mutable
   */
 object CustomAnalyzer {
 
-  var stem: KrovetzStemmer = null
+  var stem: KrovetzStemmer = new KrovetzStemmer
 
   /**
     * Initialize stemmer if this filter is applied while analysing input string
@@ -74,7 +74,12 @@ object CustomAnalyzer {
     * @param x
     * @return
     */
-  def isAllDigits(x: String) = x.matches("^\\d*$")
+  def isAllDigits(x: String) = {
+    if(x != null)
+    x.matches("^\\d*$")
+    else
+      true
+  }
 
 
   /**
