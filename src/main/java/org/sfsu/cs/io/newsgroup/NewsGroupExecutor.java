@@ -20,6 +20,7 @@ public class NewsGroupExecutor {
     //List the input docs and pass onto method indexToSolr.
 
 
+
     /**
      * Index batch of documents to solr
      * @param zkHost
