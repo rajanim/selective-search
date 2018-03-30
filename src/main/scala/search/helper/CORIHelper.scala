@@ -72,7 +72,7 @@ class CORIHelper {
       sb.append(item.getTerm).append("|")
       while (facetIter.hasNext) {
         val cluster = facetIter.next
-        sb.append(cluster.getName).append(",").append(cluster.getCount).append(";")
+        sb.append(cluster.getCount).append(";")
       }
       sb.deleteCharAt(sb.lastIndexOf(";"))
       sb.append("\n")
@@ -157,16 +157,12 @@ class CORIHelper {
     */
   def getDfArray(string: String): Array[Long] = {
     val dfs = string.split(";")
-    val array: Array[Long] = new Array[Long](dfs.size + 1)
+    val array: Array[Long] = new Array[Long](dfs.size)
 
-    for(i <- 0 to dfs.size){
+    for(i <- 0 until  dfs.size){
       array(i) = dfs(i).toInt
     }
-  /*  while (iter.hasNext) {
-      val indexDf = iter.next().split(",")
-      val index = indexDf(0).toInt
-      array(index) = indexDf(1).toInt
-    }*/
+
     array
   }
 

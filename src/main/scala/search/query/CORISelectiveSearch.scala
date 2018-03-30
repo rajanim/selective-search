@@ -41,8 +41,10 @@ class CORISelectiveSearch {
 
     val shards = coriHelper.termDfMap.get(searchQuery).get
     val cf = shards.filter(_ != 0).size
-    for (j <- 0 until shards.size - 1) {
-      shardScore.put(j.toString, getTIScore(shards(j), coriHelper.arrayCw(j), shards.size - 1, cf, b))
+    var shardCnt=0
+    for (j <- 0 until shards.size ) {
+      shardCnt+=1
+      shardScore.put("shard"+shardCnt, getTIScore(shards(j), coriHelper.arrayCw(j), shards.size, cf, b))
     }
 
     val sortedMap = shardScore.toSeq.sortWith(_._2 > _._2)
