@@ -1,0 +1,50 @@
+CORI Search algorithm
+
+PreCompute CORI Params (cw, avg_cw, df,cf)
+Input(clustered_collection)
+Connect to solr clustered_collection, get term vocabulary list and its document frequency in each shard, write to file.
+Compute cw and avg_cw and write to file.
+Output: File. A file consisting of the following with values for cw and avg_cw
+  t1 [df1][df2]...[df20]
+  t2 [df1][df2]...[df20]
+
+At the time of search
+
+Before search method is invoked,
+   create map of term (key) to array of df for each shard(values)
+    read cw and avg_cw from the first line of file.
+Search(collectionName, query)
+    for each term in query{
+       get number of shards containing this term
+            for each shard containing query term, calculate T and I of CORI
+               update map of shard-score
+ }
+ Select shard with max score
+ Query that shard of large collection to obtain search results .
+
+
+ReDDE Search algorithm
+
+Build Central Sample Index
+
+Input (clustered-large collection path, x% of records to sample)
+
+ 1. Query for number of clusters in the collection
+ 2. For each cluster
+     2.1 Query for total number of records assigned to that cluster. Calculate x% of that total number.
+     2.2 Query x% of documents from that cluster that are selected uniformly in random.
+     2.3 Index them into central sample index collection.
+
+
+At the time of search
+
+Input(search-query, central-sample-index, clustered-large-collection, number-matched-docs-to-retrieve, relevant-shards-count)
+
+1. Query central-sample-index for search-query by retrieving number-matched-docs-to-retrieve
+2. Create map of cluster id vs score, sum the scores of docs belonging to same cluster
+3. Sort the above map, score desc.
+4. Select relevant-shards-count with max score.
+5. Build a solr query to search only those relevant shards  of cluster-large-collection.
+6. Print match results.
+
+

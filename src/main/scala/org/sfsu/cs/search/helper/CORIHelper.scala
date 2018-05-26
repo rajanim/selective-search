@@ -1,8 +1,9 @@
-package search.helper
+package org.sfsu.cs.search.helper
 
-import com.lucidworks.spark.util.{SolrQuerySupport, SolrSupport}
 import com.lucidworks.spark.util.SolrSupport._
+import com.lucidworks.spark.util.{SolrQuerySupport, SolrSupport}
 import org.apache.solr.client.solrj.SolrQuery
+import org.apache.solr.common.SolrInputDocument
 import org.sfsu.cs.utils.Utility
 
 import scala.collection.mutable
@@ -18,22 +19,102 @@ class CORIHelper {
   var arrayCw = new Array[Long](10)
 
   def getTermDFMAp() = termDfMap
+
   def getArrayCw() = arrayCw
+
   def getAvgCw = avgCw
+
   /**
     * Log term to document frequency of each term to file with cw and avg cw parameters.
+    *
     * @param clusterCollection
     * @param zkHost
     * @param numClusters
     */
   def logTermDFIndexCwAvgCwForCORI(clusterCollection: String, zkHost: String, numClusters: Int): Unit = {
+    val file = Utility.getFilePath()
+    Utility.appendResultsToFile(getCoriCwAvgCwParams(zkHost, clusterCollection), outFile = file)
+
+    Utility.appendResultsToFile((getTermDFIndexForCori(clusterCollection, zkHost, 2)), file)
+  }
+
+
+  def indexTermDFIndexCwAvgCwForCORI(indexCollection: String, clusterCollection: String, zkHost: String, numClusters: Int): Unit = {
+    val cw = getCoriCwAvgCwParams(zkHost, clusterCollection)
+    val solrDocList = scala.collection.mutable.ListBuffer.empty[SolrInputDocument]
+    val solrDoc = new SolrInputDocument()
+    solrDoc.addField("coriCwAvgCw_s", cw)
+    solrDoc.addField("id", "cw")
+    solrDocList += solrDoc
+    Utility.indexToSolr(zkHost, indexCollection, solrDocList.toList)
+    indexTermDFIndexForCori(clusterCollection, zkHost, numClusters, indexCollection)
+  }
+
+
+  def indexTermDFIndexForCori(clusterCollection: String, zkHost: String, numClusters: Int, indexCollection: String) = {
+    //http://localhost:8983/solr/Test/select?indent=on&q=*:*&wt=json&terms.limit=-1
+    // &terms.fl=content_t&shards.qt=terms&rows=0&omitHeader=true&terms=true
+    val solrDocList = scala.collection.mutable.ListBuffer.empty[SolrInputDocument]
+    val solrClient = getCachedCloudClient(zkHost)
+    val solrQuery = new SolrQuery("*:*")
+    solrQuery.set("collection", clusterCollection)
+    solrQuery.setRows(0)
+    solrQuery.setRequestHandler("terms")
+    solrQuery.setTerms(true)
+    solrQuery.setTermsLimit(-1)
+    solrQuery.addTermsField("content_t")
+    val resp = SolrQuerySupport.querySolr(solrClient, solrQuery, 0, null)
+    val results = resp.get.getTermsResponse
+    val termsFreq = results.getTerms("content_t")
+    val iter = termsFreq.iterator()
     val sb = new StringBuilder
-    sb.append(getCoriCwAvgCwParams(zkHost, clusterCollection)).append(getTermDFIndexForCori(clusterCollection, zkHost, 2))
-    Utility.writeToFile(sb.toString(), Utility.getFilePath())
+    var counter = 0
+    while (iter.hasNext) {
+      //http://localhost:8983/solr/Test/select?indent=on
+      // &q=term&wt=json&facet.limit=-1&facet.field=clusterId_i&rows=0&omitHeader=true&facet=true
+      val item = iter.next()
+      val solrSubQuery = new SolrQuery(item.getTerm)
+      solrSubQuery.set("collection", clusterCollection)
+      solrSubQuery.setRows(0)
+      solrSubQuery.setFacet(true)
+      solrSubQuery.setFacetLimit(-1)
+      solrSubQuery.addFacetField("clusterId_i")
+      solrSubQuery.set("omitHeader", "true")
+      val subResp = SolrQuerySupport.querySolr(solrClient, solrSubQuery, 0, null)
+      val clusterResults = subResp.get.getFacetField("clusterId_i")
+      val facetIter = clusterResults.getValues.iterator
+      //sb.append(item.getTerm).append("|")
+      while (facetIter.hasNext) {
+        val cluster = facetIter.next
+        sb.append(cluster.getCount).append(";")
+      }
+      sb.deleteCharAt(sb.lastIndexOf(";"))
+      solrDocList += getSolrDoc(item.getTerm.trim, sb.toString)
+      sb.clear()
+      counter += 1
+      if (counter >= 100) {
+        SolrSupport.sendBatchToSolr(solrClient, indexCollection, solrDocList)
+        solrDocList.clear()
+        counter = 0
+      }
+
+    }
+    SolrSupport.sendBatchToSolr(solrClient, indexCollection, solrDocList)
+
+  }
+
+
+  def getSolrDoc(term: String, postingList: String): SolrInputDocument = {
+    val doc: SolrInputDocument = new SolrInputDocument()
+    doc.addField("term_s", term)
+    doc.addField("id", term)
+    doc.addField("postingList_t", postingList)
+    return doc
   }
 
   /**
     * To build and get term to document frequency of term in each cluster.
+    *
     * @param clusterCollection
     * @param zkHost
     * @param numClusters
@@ -77,13 +158,15 @@ class CORIHelper {
       sb.deleteCharAt(sb.lastIndexOf(";"))
       sb.append("\n")
 
+
     }
     sb.toString()
 
   }
 
   /**
-    *Cw is total term frequency(ttf) of the cluster, array of Cw is ttf of each cluster in large clustered collection.
+    * Cw is total term frequency(ttf) of the cluster, array of Cw is ttf of each cluster in large clustered collection.
+    *
     * @param zkHost
     * @param clusterCollection
     * @return
@@ -127,6 +210,7 @@ class CORIHelper {
 
   /**
     * Load the CORI params into memory
+    *
     * @param file
     * @param n
     */
@@ -152,18 +236,19 @@ class CORIHelper {
   /**
     * each line in cori param file is term to document frequency of that term in the respective cluster by index.
     * this method parses line and created df array and returns it.
-     * @param string
+    *
+    * @param string
     * @return
     */
   def getDfArray(string: String): Array[Long] = {
     val dfs = string.split(";")
     val array: Array[Long] = new Array[Long](dfs.size)
 
-    for(i <- 0 until  dfs.size){
-      array(i) = dfs(i).toInt
-    }
+      for (i <- 0 until dfs.size) {
+        array(i) = dfs(i).toInt
+      }
 
-    array
-  }
+      array
+    }
 
 }

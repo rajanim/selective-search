@@ -160,7 +160,7 @@ class KStemData7 {
 "seagull","seahorse","seakale","seal","sealer",
 "sealing","sealskin","sealyham","seam","seaman",
 "seamanlike","seamanship","seamstress","seamy","seaplane",
-"seaport","sear","search","searching","searchlight",
+"seaport","sear", "org/sfsu/cs/search","searching","searchlight",
 "searing","seascape","seashell","seashore","seasick",
 "seaside","season","seasonable","seasonal","seasoning",
 "seat","seating","seawall","seaward","seawards",

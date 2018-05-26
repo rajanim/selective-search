@@ -13,9 +13,9 @@
 hs_err_pid*
 
 dependency-reduced-pom.xml
-selective-search.iml
-selective-search.ipr
-selective-search.iws
+selective-org.sfsu.cs.search.iml
+selective-org.sfsu.cs.search.ipr
+selective-org.sfsu.cs.search.iws
 
 .idea/
 

@@ -17,7 +17,7 @@ class TestQrelsDocsParser extends TestSuiteBuilder{
     val sc = SparkContext.getOrCreate(new SparkConf().setAppName("test app"))
     val tfDocs = TextFileParser.getTFDocuments(sc,
       "/Users/rajanishivarajmaski1/ClueWeb09_English_9/qrels_docs",
-      20, "/Users/rajanishivarajmaski1/University/csc895/selective-search/src/test/resources/stopwords.txt")
+      20, "/Users/rajanishivarajmaski1/University/csc895/selective-org.sfsu.cs.search/src/test/resources/stopwords.txt")
     println(tfDocs.take(1).mkString(" "))
     val docVectors = VectorImpl.getDocVectors(sc, tfDocs, 10000)
     val result = KMeanClustering.train(data = docVectors.map(docVec => docVec.vector), 10, 5, 10000)

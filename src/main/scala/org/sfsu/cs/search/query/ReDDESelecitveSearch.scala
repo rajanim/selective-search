@@ -1,4 +1,4 @@
-package search.query
+package org.sfsu.cs.search.query
 
 import com.lucidworks.spark.util.SolrQuerySupport
 import com.lucidworks.spark.util.SolrSupport._
@@ -22,8 +22,10 @@ class ReDDESelecitveSearch {
     * @param numShards
     * @return
     */
-  def relevantDDEBasedSelectiveSearch(zkHost: String, csIndexColl: String, clusterColl: String, searchText: String, numRowsCSIndex: Int, numShards: Int): SolrDocumentList = {
-    //For the search term/text build a search query to cs index, get first 100 docs
+  def relevantDDEBasedSelectiveSearch(zkHost: String, csIndexColl: String, clusterColl: String, searchText: String,
+                                      numRowsCSIndex: Int, numShards: Int, rowsToRet:Int): (Int, SolrDocumentList) = {
+    //For the org.sfsu.cs.search term/text build a org.sfsu.cs.search query to cs index, get first 100 docs
+    var totalQtime = 0
     var solrQuery = new SolrQuery()
     solrQuery.set("collection", csIndexColl)
     solrQuery.setRows(numRowsCSIndex)
@@ -31,21 +33,28 @@ class ReDDESelecitveSearch {
     solrQuery.set("fl", "clusterId_s", "score", "_route_")
     val solrClient = getCachedCloudClient(zkHost)
     println(solrQuery.toQueryString)
-    val resp = SolrQuerySupport.querySolr(solrClient, solrQuery, 0, null)
-    val results = resp.get.getResults
+    val resp = SolrQuerySupport.querySolr(solrClient, solrQuery, 0, null).get
+    totalQtime += resp.getQTime
+    val results = resp.getResults
     println("numFound: ", results.getNumFound, "Rows retrieved: ", results.size)
     //for results, create map of cluster id vs score of matched docs, and select shard with max score
     val clusters = getRelevantClusters(results, numShards)
-    // for search text/term, build a search query to cluster coll to query only retrieved shards.
-    solrQuery = new SolrQuery()
-    solrQuery.set("collection", clusterColl)
-    solrQuery.setQuery(searchText)
-    solrQuery.set("_route_", clusters)
-    solrQuery.set("fl", "clusterId_s", "score", "content_t", "id")
-    solrQuery.setRows(10)
-    println("query to large collection", solrQuery.toQueryString)
-    val collResp = SolrQuerySupport.querySolr(solrClient, solrQuery, 0, null)
-    collResp.get.getResults
+    if(!clusters.isEmpty) {
+
+      // for org.sfsu.cs.search text/term, build a org.sfsu.cs.search query to cluster coll to query only retrieved shards.
+      solrQuery = new SolrQuery()
+      solrQuery.set("collection", clusterColl)
+      solrQuery.setQuery(searchText)
+      solrQuery.set("_route_", clusters)
+      solrQuery.set("fl", "clusterId_s", "score", "content_t", "id")
+      solrQuery.setRows(rowsToRet)
+      println("query to large collection", solrQuery.toQueryString)
+      val collResp = SolrQuerySupport.querySolr(solrClient, solrQuery, 0, null).get
+      totalQtime += collResp.getQTime
+      (totalQtime, collResp.getResults)
+    } else
+      null
+
   }
 
 

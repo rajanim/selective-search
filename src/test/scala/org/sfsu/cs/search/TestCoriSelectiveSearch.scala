@@ -1,7 +1,7 @@
 package org.sfsu.cs.search
 
-import search.helper.CORIHelper
-import search.query.CORISelectiveSearch
+import org.sfsu.cs.search.helper.CORIHelper
+import org.sfsu.cs.search.query.CORISelectiveSearchFileIndex
 import util.TestSuiteBuilder
 
 /**
@@ -12,11 +12,12 @@ class TestCoriSelectiveSearch extends TestSuiteBuilder {
 
   test("testCoriSelectiveSearch") {
 
-    val coriSelectiveSearch = new CORISelectiveSearch()
-    coriSelectiveSearch.initCoriSelectiveSearch("/Users/rajanishivarajmaski1/University/csc895/selective-search/spark_cluster_job_op/20180326_152619")
+    val coriSelectiveSearch = new CORISelectiveSearchFileIndex()
+    coriSelectiveSearch.initCoriSelectiveSearch("/Users/rajanishivarajmaski1/University/csc895/selective-org.sfsu.cs.search/spark_cluster_job_op/20180326_152619")
     val searchQuery = "zucsoi"
-    val docs = coriSelectiveSearch.executeCoriSelectiveSearch("localhost:9983", "news_byte_d_idf", searchQuery, 0.4).iterator()
-    println("printing cori results for search query:" + searchQuery)
+    val fieldToret = "clusterId_s,score, content_t,id"
+    val docs = coriSelectiveSearch.executeCoriSelectiveSearch("localhost:9983", "news_byte_d_idf", searchQuery, 5, 0.4, fieldToret).iterator()
+    println("printing cori results for org.sfsu.cs.search query:" + searchQuery)
     while (docs.hasNext){
       println(docs.next().toString)
     }

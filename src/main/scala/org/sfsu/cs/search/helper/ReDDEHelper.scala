@@ -1,4 +1,4 @@
-package search.helper
+package org.sfsu.cs.search.helper
 
 import com.lucidworks.spark.util.{SolrQuerySupport, SolrSupport}
 import com.lucidworks.spark.util.SolrSupport._
@@ -13,7 +13,7 @@ import scala.collection.mutable.ListBuffer
 class ReDDEHelper {
 
   /**
-    * ReDDE requires central sample index(CSI) to be created before hand inorder to perform selective search.
+    * ReDDE requires central sample index(CSI) to be created before hand inorder to perform selective org.sfsu.cs.search.
     * CSI is 'x' percentage of documents selected uniformly in random from each cluster and central index created out of those docs.
     * @param clusteredDocsCollection
     * @param zkHost
@@ -21,9 +21,9 @@ class ReDDEHelper {
     * @param csIndexCollection
     * @return
     */
-  def buildCSIndex(clusteredDocsCollection: String, zkHost: String, clusterCount: Int, csIndexCollection: String): Int = {
+  def buildCSIndex(clusteredDocsCollection: String, zkHost: String, clusterCount: Int, csIndexCollection: String, percent:Int): Int = {
     for (i <- 1 to clusterCount) {
-      val numRows = getSampleDocsSize(clusteredDocsCollection, i, zkHost, 1)
+      val numRows = getSampleDocsSize(clusteredDocsCollection, i, zkHost, percent)
       val solrQuery = new SolrQuery("*:*")
       solrQuery.set("collection", clusteredDocsCollection)
       solrQuery.setRows(numRows.toInt)

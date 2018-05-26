@@ -1,17 +1,17 @@
-package search.query
+package org.sfsu.cs.search.query
 
 import com.lucidworks.spark.util.SolrQuerySupport
 import com.lucidworks.spark.util.SolrSupport._
 import org.apache.solr.client.solrj.SolrQuery
 import org.apache.solr.common.SolrDocumentList
-import search.helper.CORIHelper
+import org.sfsu.cs.search.helper.CORIHelper
 
 import scala.collection.mutable
 
 /**
   * Created by rajanishivarajmaski1 on 11/17/17.
   */
-class CORISelectiveSearch {
+class CORISelectiveSearchFileIndex {
 
   var coriHelper: CORIHelper = null
 
@@ -36,7 +36,7 @@ class CORISelectiveSearch {
     * @param b
     */
   def executeCoriSelectiveSearch(zkHost: String, clusterCollection: String,
-                                 searchQuery: String, b: Double): SolrDocumentList = {
+                                 searchQuery: String, topShards: Int, b: Double, fields:String): SolrDocumentList = {
     val shardScore = mutable.HashMap.empty[String, Double]
 
     val shards = coriHelper.termDfMap.get(searchQuery).get
@@ -49,7 +49,7 @@ class CORISelectiveSearch {
 
     val sortedMap = shardScore.toSeq.sortWith(_._2 > _._2)
     println(sortedMap.mkString("|"))
-    getMatchedDocs(clusterCollection, zkHost, searchQuery, sortedMap.take(sortedMap.size).toMap.keys.mkString(","))
+    getMatchedDocs(clusterCollection, zkHost, searchQuery, sortedMap.take(topShards).toMap.keys.mkString(","), fields)
   }
 
 
@@ -78,13 +78,13 @@ class CORISelectiveSearch {
     * @param clusters
     * @return
     */
-  def getMatchedDocs(clusterColl: String, zkHost: String, searchText: String, clusters: String): SolrDocumentList = {
+  def getMatchedDocs(clusterColl: String, zkHost: String, searchText: String, clusters: String, fields: String): SolrDocumentList = {
     val solrClient = getCachedCloudClient(zkHost)
     val solrQuery = new SolrQuery()
     solrQuery.set("collection", clusterColl)
     solrQuery.setQuery(searchText)
     solrQuery.set("_route_", clusters)
-    solrQuery.set("fl", "clusterId_s", "score", "content_t", "id")
+    solrQuery.set("fl", fields)
     solrQuery.setRows(10)
     println("query to large collection", solrQuery.toQueryString)
     val collResp = SolrQuerySupport.querySolr(solrClient, solrQuery, 0, null)
