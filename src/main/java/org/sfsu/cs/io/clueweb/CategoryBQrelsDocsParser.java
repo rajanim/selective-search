@@ -19,6 +19,43 @@ public class CategoryBQrelsDocsParser {
 
     }
 
+
+    void parse(String path){
+        LineIterator it = null;
+        try {
+            it = FileUtils.lineIterator(new File(path), "UTF-8");
+            StringBuilder builder = new StringBuilder();
+            String rootPath = "/Users/rajanishivarajmaski1/ClueWeb09_English_9/qrels_docs/";
+            String fileName = "";
+            String prevLine="";
+            while (it.hasNext()) {
+                String line = it.nextLine();
+                if (line.contains("EXTERNAL DOC ID:")) {
+                    // fileName  = rootPath + line.substring(line.indexOf(':') + 1).trim();
+                    String[] recordLine = prevLine.split(" ");
+                    fileName = rootPath+ recordLine[2].trim() ;
+                    builder.append(line).append("\n");
+                } else if (line.contains("</html>")) {
+                    writeToFile(builder.toString(), fileName);
+                    builder = new StringBuilder();
+                } else {
+                    if(!line.trim().isEmpty())
+                        builder.append(line).append("\n");
+                }
+                prevLine = line;
+
+            }
+        } catch (IOException ie) {
+
+
+
+
+        } finally {
+            LineIterator.closeQuietly(it);
+        }
+
+    }
+
     void parseDocs(String path) {
         LineIterator it = null;
         try {

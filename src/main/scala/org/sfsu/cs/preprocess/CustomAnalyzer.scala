@@ -48,7 +48,7 @@ object CustomAnalyzer {
     * @return
     */
   def tokenizeFilterStopWordsStem(input: String, stopWords: Set[String]): Map[Any, Double] = {
-    val terms = input.toLowerCase.split("\\W+").filter(!stopWords(_)).iterator
+    val terms = input.toLowerCase.split("[^a-zA-Z0-9]").filter(!stopWords(_)).iterator
     val termList = mutable.HashMap.empty[Any, Double]
     while (terms.hasNext) {
       val term = terms.next()

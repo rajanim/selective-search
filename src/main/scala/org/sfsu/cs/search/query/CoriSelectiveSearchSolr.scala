@@ -27,8 +27,9 @@ class CoriSelectiveSearchSolr {
     val solrClient = getCachedCloudClient(zkHost)
     val solrQuery = new SolrQuery()
     solrQuery.set("collection", searchStatCollection)
-    solrQuery.setQuery("id:cw")
+    solrQuery.setQuery("id:coriCwAvgCw_s")
     solrQuery.setFields("coriCwAvgCw_s")
+    //println("init query", solrQuery.toString)
     val resp = SolrQuerySupport.querySolr(solrClient, solrQuery, 0, null).get
     val doc = resp.getResults.get(0)
     val cw = doc.get("coriCwAvgCw_s").toString.trim.split(";")
@@ -41,36 +42,64 @@ class CoriSelectiveSearchSolr {
     }
   }
 
+  def initForVariantTIS(zkHost: String, clusterCollection: String, searchStatCollection: String) = {
+
+    val solrClient = getCachedCloudClient(zkHost)
+    val solrQuery = new SolrQuery()
+    solrQuery.set("collection", clusterCollection)
+    solrQuery.setFacet(true)
+    solrQuery.addFacetField("clusterId_i")
+    solrQuery.setFacetSort("index")
+    solrQuery.setRows(0)
+    solrQuery.setQuery("*:*")
+    val resp = SolrQuerySupport.querySolr(solrClient, solrQuery, 0, null).get
+    val facetResults = resp.getFacetField("clusterId_i").getValues
+    arrayCw = new Array[Long](facetResults.size)
+    val iter = facetResults.iterator()
+    var i = 0
+    while (iter.hasNext) {
+      arrayCw(i) = iter.next().getCount
+      i += 1
+    }
+    avgCw = (arrayCw.sum) / arrayCw.size
+
+
+  }
+
+
   def executeCoriSelectiveSearch(zkHost: String, clusterCollection: String, coriStatsCollection: String,
-                                 searchQuery: String, topShards: Int, b: Double, fields: String, rows: Int): (Int, QueryResponse) = {
+                                 searchQuery: String, topShards: Int, b: Double, fields: String, rows: Int, fq: String): (Int, QueryResponse) = {
     val shardScore = mutable.HashMap.empty[String, Double]
 
     val queryTerms = searchQuery.split(" ")
     var qTime = 0
     queryTerms.foreach(term => {
       val results = getMatchingShards(zkHost, clusterCollection, coriStatsCollection, term, "postingList_t")
-      if(results!=null){
-      qTime += results._1
-        println("qtime  cori csi "+ results._1+ " totalQtime"+ qTime)
-      val shards = results._2
-      if (shards != null) {
-        val cf = shards.filter(_ != 0).size
-        var shardCnt = 0
-        for (j <- 0 until shards.size) {
-          shardCnt += 1
-          val score = shardScore.getOrElse("shard" + shardCnt, 0.0)
-          shardScore.put("shard" + shardCnt, getTIScore(shards(j), arrayCw(j), shards.size, cf, b) + score)
+      if (results != null) {
+        qTime += results._1
+        //println("qtime  cori csi "+ results._1+ " totalQtime"+ qTime)
+        val shards = results._2
+        if (shards != null) {
+          val cf = shards.filter(_ != 0).size
+          var shardCnt = 0
+          for (j <- 0 until shards.size) {
+            shardCnt += 1
+            val score = shardScore.getOrElse("shard" + shardCnt, 0.0)
+            val finalScore = getVariantTIScore(shards(j), arrayCw(j), shards.size, cf, b) + score
+            //println("shardCnt" + shardCnt, "df: " + shards(j), "cw: " + arrayCw(j), "shardScore: " + finalScore)
+            shardScore.put("shard" + shardCnt, finalScore)
+
+          }
         }
       }
-    }})
-
+    })
 
     val sortedMap = shardScore.toSeq.sortWith(_._2 > _._2)
-    println(sortedMap.mkString("|"))
+    //println(sortedMap.mkString("|"))
     if (!sortedMap.isEmpty) {
-      val results = getMatchedDocs(clusterCollection, zkHost, searchQuery, sortedMap.take(topShards).toMap.keys.mkString(","), fields, rows)
+      val results = getMatchedDocs(clusterCollection, zkHost, searchQuery, fq, sortedMap.take(topShards).toMap.keys.mkString(","), fields, rows)
       qTime += results.getQTime
-      println("qtime after results obtained for cori query"+ results.getQTime + " total "+ qTime)
+      //println("qtime after results obtained for cori query"+ results.getQTime + " total "+ qTime)
       (qTime, results)
     }
     else
@@ -92,7 +121,7 @@ class CoriSelectiveSearchSolr {
   }
 
 
-  def querySolr(zkHost: String, coriStatCollection: String, searchQuery: String, fields: String):  QueryResponse = {
+  def querySolr(zkHost: String, coriStatCollection: String, searchQuery: String, fields: String): QueryResponse = {
     val solrClient = getCachedCloudClient(zkHost)
     val solrQuery = new SolrQuery(searchQuery)
     solrQuery.set("collection", coriStatCollection)
@@ -137,6 +166,12 @@ class CoriSelectiveSearchSolr {
     b + (1 - b) * T * I
   }
 
+  def getVariantTIScore(df: Long, cw: Long, numShards: Int, cf: Int, b: Double): Double = {
+    val T = (df) / (df + (10 * (cw.toDouble / avgCw.toDouble)))
+    val I = Math.log10((numShards + 0.5) / cf.toDouble) / Math.log10(numShards + 1.0)
+    b + (1 - b) * T * I
+  }
+
   /**
     * get matched docs by querying only relevant shards selected by applying CORI.
     *
@@ -146,7 +181,8 @@ class CoriSelectiveSearchSolr {
     * @param clusters
     * @return
     */
-  def getMatchedDocs(clusterColl: String, zkHost: String, searchText: String, clusters: String, fields: String, rows: Int): QueryResponse = {
+  def getMatchedDocs(clusterColl: String, zkHost: String, searchText: String, fq: String, clusters: String, fields: String, rows: Int): QueryResponse = {
+    println("search text: ", searchText, "clusters: ", clusters)
     val solrClient = getCachedCloudClient(zkHost)
     val solrQuery = new SolrQuery()
     solrQuery.set("collection", clusterColl)
@@ -154,18 +190,20 @@ class CoriSelectiveSearchSolr {
     solrQuery.set("_route_", clusters)
     solrQuery.set("fl", fields)
     solrQuery.setRows(rows)
-    println("query to large collection", solrQuery.toQueryString)
+    solrQuery.setFilterQueries(fq)
+    //println("query to large collection", solrQuery.toQueryString)
     SolrQuerySupport.querySolr(solrClient, solrQuery, 0, null).get
 
   }
+
 }
 
 object CoriSelectiveSearchSolr {
   def main(args: Array[String]): Unit = {
     val coriSelectiveSearchSolr = new CoriSelectiveSearchSolr
-    coriSelectiveSearchSolr.init("localhost:9983", "clueweb", "clueweb_cori")
+    coriSelectiveSearchSolr.initForVariantTIS("localhost:9983", "clueweb", "clueweb_cori")
     val response = coriSelectiveSearchSolr.executeCoriSelectiveSearch("localhost:9983", "clueweb", "clueweb_cori",
-      "rest perfect", 10, 0.4, "id, score", 100)._2.getResults.iterator()
+      "fybromyalgia", 10, 0.4, "id, score", 1000, "id:clueweb09-en0000-15-27116")._2.getResults.iterator()
     print("\n\n\n")
     while (response.hasNext) {
       val doc = response.next()

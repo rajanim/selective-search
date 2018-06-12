@@ -44,7 +44,7 @@ class CORIHelper {
     val solrDocList = scala.collection.mutable.ListBuffer.empty[SolrInputDocument]
     val solrDoc = new SolrInputDocument()
     solrDoc.addField("coriCwAvgCw_s", cw)
-    solrDoc.addField("id", "cw")
+    solrDoc.addField("id", "coriCwAvgCw_s")
     solrDocList += solrDoc
     Utility.indexToSolr(zkHost, indexCollection, solrDocList.toList)
     indexTermDFIndexForCori(clusterCollection, zkHost, numClusters, indexCollection)

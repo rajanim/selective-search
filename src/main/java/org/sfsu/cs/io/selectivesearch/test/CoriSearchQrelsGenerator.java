@@ -13,7 +13,9 @@ import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.util.HashMap;
 import java.util.Iterator;
+import java.util.LinkedList;
 
 /**
  * Created by rajanishivarajmaski1 on 5/14/18.
@@ -21,7 +23,9 @@ import java.util.Iterator;
 public class CoriSearchQrelsGenerator {
 
     CoriSelectiveSearchSolr coriSelectiveSearchSolr;
-    StringBuffer qTimeBuffer ;
+    StringBuffer qTimeBuffer;
+    HashMap<Integer, LinkedList<String>> qrelsFq;
+    static int topShards = 10;
 
     public CoriSearchQrelsGenerator() {
         coriSelectiveSearchSolr = new CoriSelectiveSearchSolr();
@@ -30,14 +34,46 @@ public class CoriSearchQrelsGenerator {
     }
 
     public static void main(String[] args) {
-        String fileName = "1M_CoriSearch_ResultsFile_20Shards_10Docs.txt";
-        CoriSearchQrelsGenerator coriSearchQrelsGenerator = new CoriSearchQrelsGenerator();
-        coriSearchQrelsGenerator.generateResults("/Users/rajanishivarajmaski1/Desktop/selective_search/anagha/clueweb_queries/all_bow.txt",
-                "clueweb", "clueweb_cori", "localhost:9983", "/Users/rajanishivarajmaski1/Desktop/selective_search/anagha/clueweb_queries/" +fileName);
+        String fileName = "1M_CoriSearch_ResultsFile_"+topShards+"_.txt";
 
-        Utility.writeToFile(coriSearchQrelsGenerator.qTimeBuffer.toString(), "/Users/rajanishivarajmaski1/Desktop/selective_search/anagha/clueweb_queries/"+"QTime_Cori");
+        CoriSearchQrelsGenerator coriSearchQrelsGenerator = new CoriSearchQrelsGenerator();
+        coriSearchQrelsGenerator.loadFq("/Users/rajanishivarajmaski1/Desktop/selective_search/anagha/clueweb_queries/qrels_withDocName.txt");
+        coriSearchQrelsGenerator.generateResults("/Users/rajanishivarajmaski1/Desktop/selective_search/anagha/clueweb_queries/all_bow.txt",
+                "clueweb", "clueweb_cori", "localhost:9983", "/Users/rajanishivarajmaski1/Desktop/selective_search/anagha/clueweb_queries/" + fileName);
+
+        Utility.writeToFile(coriSearchQrelsGenerator.qTimeBuffer.toString(), "/Users/rajanishivarajmaski1/Desktop/selective_search/anagha/clueweb_queries/" + "QTime_Cori");
 
         System.exit(0);
+    }
+
+    void loadFq(String qrelsFile) {
+
+        LineIterator lineIterator;
+        qrelsFq = new HashMap<>();
+        String line;
+        int number = 1;
+        int qNum;
+        try {
+            lineIterator = FileUtils.lineIterator(new File(qrelsFile), "UTF-8");
+            LinkedList<String> docNumbers = new LinkedList<>();
+            while (lineIterator.hasNext()) {
+                line = lineIterator.nextLine();
+                String[] qrel = line.split(" ");
+                qNum = Integer.parseInt(qrel[0]);
+                if (qNum == number) {
+                    docNumbers.add(qrel[2]);
+                } else {
+                    qrelsFq.put(number, docNumbers);
+                    number++;
+                    docNumbers = new LinkedList<>();
+
+                }
+            }
+
+        } catch (IOException io) {
+
+        }
+
     }
     protected void generateResults(String queriesFile, String collection, String statsCollection, String zkHost, String outFile) {
         LineIterator lineIterator = null;
@@ -47,9 +83,10 @@ public class CoriSearchQrelsGenerator {
             while (lineIterator.hasNext()) {
                 line = lineIterator.nextLine();
                 String[] idQuery = line.split(":");
-                SolrDocumentList solrDocumentList = querySolr(idQuery[1].trim(), collection, statsCollection, zkHost);
-                if(solrDocumentList!=null)
-                appendResultsToFile(idQuery[0].trim(), solrDocumentList.iterator(), outFile);
+                String fq = getFq(idQuery[0].trim());
+                SolrDocumentList solrDocumentList = querySolr(idQuery[1].trim(), fq, collection, statsCollection, zkHost);
+                if (solrDocumentList != null)
+                    appendResultsToFile(idQuery[0].trim(), solrDocumentList.iterator(), outFile);
             }
         } catch (IOException e) {
 
@@ -57,22 +94,31 @@ public class CoriSearchQrelsGenerator {
             LineIterator.closeQuietly(lineIterator);
         }
 
-
     }
 
-    protected SolrDocumentList querySolr(String query, String clusterColl, String coriStatCollection, String zkHost) {
+    String getFq(String id) {
+        LinkedList<String> ids = qrelsFq.get(Integer.parseInt(id));
+        StringBuffer fqQuery = new StringBuffer();
+        fqQuery.append("(");
+        for (String str : ids) {
+            fqQuery.append("\"").append(str).append("\"").append(" OR ");
+        }
+        fqQuery.append("id:0)");
+        //System.out.println(fqQuery.toString());
+        return fqQuery.toString();
+    }
+
+    protected SolrDocumentList querySolr(String query, String fq, String clusterColl, String coriStatCollection, String zkHost) {
         Tuple2 results = coriSelectiveSearchSolr.executeCoriSelectiveSearch(zkHost, clusterColl,
-                coriStatCollection, query, 50, 0.4, "id, score", 10);
+                coriStatCollection, query, topShards, 0.4, "id, score", 1000, fq);
         QueryResponse response;
-        if(results!=null) {
-             response = (QueryResponse) results._2();
+        if (results != null) {
+            response = (QueryResponse) results._2();
 
             qTimeBuffer.append((int) results._1()).append("\n");
             return response.getResults();
-        }else
+        } else
             return null;
-
-
     }
 
     protected void appendResultsToFile(String queryId, Iterator<SolrDocument> solrDocumentList, String outFile) {

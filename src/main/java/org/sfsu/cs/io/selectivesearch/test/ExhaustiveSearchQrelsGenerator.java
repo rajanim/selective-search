@@ -15,7 +15,9 @@ import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.util.HashMap;
 import java.util.Iterator;
+import java.util.LinkedList;
 
 /**
  * Created by rajanishivarajmaski1 on 5/10/18.
@@ -27,12 +29,14 @@ import java.util.Iterator;
 public class ExhaustiveSearchQrelsGenerator {
 
     StringBuffer qTimeBuffer = new StringBuffer();
+    HashMap<Integer, LinkedList<String>> qrelsFq;
 
     public static void main(String[] args) {
 
-        String fileName = "1M_ExhaustiveSearchResultsFile_10Docs.txt";
-        int rows = 10;
+        String fileName = "ExhaustiveSearchResultsFile.txt";
+        int rows = 1000;
         ExhaustiveSearchQrelsGenerator exhaustiveSearchQrelsGenerator = new ExhaustiveSearchQrelsGenerator();
+        exhaustiveSearchQrelsGenerator.loadFq("/Users/rajanishivarajmaski1/Desktop/selective_search/anagha/clueweb_queries/qrels_withDocName.txt");
         exhaustiveSearchQrelsGenerator.generateResults("/Users/rajanishivarajmaski1/Desktop/selective_search/anagha/clueweb_queries/all_bow.txt",
                 "clueweb", "localhost:9983", "/Users/rajanishivarajmaski1/Desktop/selective_search/anagha/clueweb_queries/"+ fileName, rows);
         Utility.writeToFile(exhaustiveSearchQrelsGenerator.qTimeBuffer.toString(), "/Users/rajanishivarajmaski1/Desktop/selective_search/anagha/clueweb_queries/"+"QTime_Exhaustive");
@@ -47,7 +51,8 @@ public class ExhaustiveSearchQrelsGenerator {
             while (lineIterator.hasNext()) {
                 line = lineIterator.nextLine();
                 String[] idQuery = line.split(":");
-                SolrDocumentList solrDocumentList = querySolr(idQuery[1].trim(), collection, zkHost, rows);
+                String fq = getFq(idQuery[0].trim());
+                SolrDocumentList solrDocumentList = querySolr(idQuery[1].trim(), collection, zkHost, rows,fq);
                 appendResultsToFile(idQuery[0].trim(), solrDocumentList.iterator(), outFile);
             }
         } catch (IOException e) {
@@ -58,7 +63,7 @@ public class ExhaustiveSearchQrelsGenerator {
 
     }
 
-    protected SolrDocumentList querySolr(String query, String collection, String zkHost, int rows) {
+    protected SolrDocumentList querySolr(String query, String collection, String zkHost, int rows, String fq) {
         SolrClient solrClient = SolrSupport.getCachedCloudClient(zkHost);
         SolrQuery solrQuery = new SolrQuery();
         solrQuery.set("collection", collection);
@@ -66,10 +71,54 @@ public class ExhaustiveSearchQrelsGenerator {
         solrQuery.setRequestHandler("edismax");
         solrQuery.set("fl", "id, score");
         solrQuery.setRows(rows);
+        solrQuery.setFilterQueries(fq);
         QueryResponse collResp = SolrQuerySupport.querySolr(solrClient, solrQuery, 0, null).get();
         qTimeBuffer.append(collResp.getQTime()).append("\n");
         return collResp.getResults();
     }
+
+    void loadFq(String qrelsFile) {
+
+        LineIterator lineIterator;
+        qrelsFq = new HashMap<>();
+        String line;
+        int number = 1;
+        int qNum;
+        try {
+            lineIterator = FileUtils.lineIterator(new File(qrelsFile), "UTF-8");
+            LinkedList<String> docNumbers = new LinkedList<>();
+            while (lineIterator.hasNext()) {
+                line = lineIterator.nextLine();
+                String[] qrel = line.split(" ");
+                qNum = Integer.parseInt(qrel[0]);
+                if (qNum == number) {
+                    docNumbers.add(qrel[2]);
+                } else {
+                    qrelsFq.put(number, docNumbers);
+                    number++;
+                    docNumbers = new LinkedList<>();
+
+                }
+            }
+
+        } catch (IOException io) {
+
+        }
+
+    }
+
+    String getFq(String id) {
+        LinkedList<String> ids = qrelsFq.get(Integer.parseInt(id));
+        StringBuffer fqQuery = new StringBuffer();
+        fqQuery.append("(");
+        for (String str : ids) {
+            fqQuery.append("\"").append(str).append("\"").append(" OR ");
+        }
+        fqQuery.append("id:0)");
+        //System.out.println(fqQuery.toString());
+        return fqQuery.toString();
+    }
+
 
     protected void appendResultsToFile(String queryId, Iterator<SolrDocument> solrDocumentList, String outFile) {
         BufferedWriter bw = null;
