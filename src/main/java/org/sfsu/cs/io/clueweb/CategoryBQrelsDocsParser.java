@@ -15,34 +15,38 @@ public class CategoryBQrelsDocsParser {
 
     public static void main(String[] args) {
         CategoryBQrelsDocsParser categoryBQrelsDocsParser = new CategoryBQrelsDocsParser();
-        categoryBQrelsDocsParser.parseDocs("/Users/rajanishivarajmaski1/Downloads/categoryB_qrels_docs");
+        categoryBQrelsDocsParser.parse("/Users/rajanishivarajmaski1/Downloads/categoryB_qrels_docs");
 
     }
 
 
     void parse(String path){
         LineIterator it = null;
+        int count=0;
         try {
             it = FileUtils.lineIterator(new File(path), "UTF-8");
             StringBuilder builder = new StringBuilder();
-            String rootPath = "/Users/rajanishivarajmaski1/ClueWeb09_English_9/qrels_docs/";
-            String fileName = "";
+            String rootPath = "/Users/rajanishivarajmaski1/ClueWeb09_English_9/qrels_docs_new/";
+            String id="first";
             String prevLine="";
             while (it.hasNext()) {
                 String line = it.nextLine();
                 if (line.contains("EXTERNAL DOC ID:")) {
-                    // fileName  = rootPath + line.substring(line.indexOf(':') + 1).trim();
-                    String[] recordLine = prevLine.split(" ");
-                    fileName = rootPath+ recordLine[2].trim() ;
-                    builder.append(line).append("\n");
-                } else if (line.contains("</html>")) {
-                    writeToFile(builder.toString(), fileName);
+                    int index = builder.lastIndexOf(prevLine);
+                    builder.delete(index, builder.length());
+                    writeToFile(builder.toString(), rootPath+id);
+                    count+=1;
+                    id = line.substring(line.indexOf(':') + 1).trim() ;
                     builder = new StringBuilder();
+                    builder.append(line).append("\n");
+
                 } else {
-                    if(!line.trim().isEmpty())
+                    if(!line.trim().isEmpty()){
+                        prevLine = line;
                         builder.append(line).append("\n");
+                    }
+
                 }
-                prevLine = line;
 
             }
         } catch (IOException ie) {
@@ -52,6 +56,7 @@ public class CategoryBQrelsDocsParser {
 
         } finally {
             LineIterator.closeQuietly(it);
+            System.out.println("count: " + count);
         }
 
     }
