@@ -29,7 +29,7 @@ public class CoriSearchQrelsGenerator {
 
     public CoriSearchQrelsGenerator() {
         coriSelectiveSearchSolr = new CoriSelectiveSearchSolr();
-        coriSelectiveSearchSolr.init("localhost:9983", "clueweb", "clueweb_cori");
+        coriSelectiveSearchSolr.initForVariantTIS("localhost:9983", "clueweb", "clueweb_cori");
         qTimeBuffer = new StringBuffer();
     }
 
