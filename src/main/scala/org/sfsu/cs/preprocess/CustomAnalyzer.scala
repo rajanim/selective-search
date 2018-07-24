@@ -3,6 +3,7 @@ package org.sfsu.cs.preprocess
 
 import org.jsoup.Jsoup
 import org.lemurproject.kstem.KrovetzStemmer
+import org.sfsu.cs.utils.Utility
 
 import scala.collection.mutable
 
@@ -48,13 +49,21 @@ object CustomAnalyzer {
     * @return
     */
   def tokenizeFilterStopWordsStem(input: String, stopWords: Set[String]): Map[Any, Double] = {
-    val terms = input.toLowerCase.split("[^a-zA-Z0-9]").filter(!stopWords(_)).iterator
+    val ioTerms = input.toLowerCase.split("[0-9]+|[\\W]").filterNot(stopWords)
+   // Utility.appendResultsToFile(ioTerms.mkString(",") + "\n", "/Users/rajanishivarajmaski1/University/CSC899/spark-2.0.0-bin-hadoop2.7/spark_cluster_job_op/terms.txt")
+   // val ioTerms = input.toLowerCase.split("[0-9]+|[\\W]")
+    //val stopWordsFiltered = ioTerms.filterNot(stopWords)
+    //stopWordsFiltered.foreach(println(_))
+    val terms = ioTerms.iterator
     val termList = mutable.HashMap.empty[Any, Double]
     while (terms.hasNext) {
       val term = terms.next()
-      val stemTerm = stem.stem(term)
-      if (!isAllDigits((stemTerm)))
-        termList.put(stemTerm, tf(stemTerm, termList))
+      if (term.size > 2) {
+        val stemTerm = stem.stem(term)
+        if(!stopWords.contains(stemTerm))
+        if (!isAllDigits((stemTerm)))
+          termList.put(stemTerm, tf(stemTerm, termList))
+      }
     }
     termList.toMap
   }
@@ -151,6 +160,11 @@ object CustomAnalyzer {
     "whereupon", "wherever", "whether", "which", "while", "whither", "who", "who's", "whoever", "whole", "whom",
     "whose", "why", "why's", "will", "willing", "wish", "with", "within", "without", "won't", "wonder", "would",
     "wouldn't", "www", "yes", "yet", "you", "you'd", "you'll", "you're", "you've", "your", "yours", "yourself",
-    "yourselves", "zero", "subject", "organization", "lines")
+    "yourselves", "zero", "subject", "organization", "lines", "zero", "clueweb09","clueweb012", "indri", "metadata", "html","type",
+    "will", "doc", "document", "dd", "del", "delete", "inverted", "invert", "index", "dumpindex", "term", "vocabulary", "external",
+    "command", "compact", "fieldposition", "termposition", "documentdata", "documentid", "documentname", "documenttext", "documentvector",
+    "ids", "vector", "tp", "argument", "gmt", "change", "di", "dt", "dn", "dv", "dx", "dxcount", "fp", "invlist", "stat", "statistics",
+    "expressionlist", "dd", "occurrence", "position", "merge", "match", "release", "repository", "retrieve", "print", "representation", "full"
+  )
 
 }

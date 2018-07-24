@@ -124,6 +124,7 @@ class TopicalShardsCreator extends RDDProcessor {
         throw new Exception(" Input files (warcFilesPath/textFilesPath path not found")
     }
     parseCmdLineArgsToVariables(cli)
+    println("phase: ", phase)
     //work for clueweb warc files
     if (warcFilesPath != null && !warcFilesPath.isEmpty) {
       val stringDocs = Clueweb09Parser.getWarcRecordsViaFIS(sc, warcFilesPath, partitions = numPartitions)

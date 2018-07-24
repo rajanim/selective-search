@@ -34,6 +34,7 @@ object VectorImpl {
       .flatMap(_.keySet).map((_, 1)).reduceByKey(_ + _)
 
     println(s"LOG: End docFreqs map builder: ${Calendar.getInstance().getTime()} ")
+    println(s"doc freq size: ", docFreqs.count())
 
     val ordering = Ordering.by[(Any, Int), Int](_._2)
     val topDocFreqs = docFreqs.top(numFeatures)(ordering)

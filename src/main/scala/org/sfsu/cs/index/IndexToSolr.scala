@@ -41,6 +41,7 @@ object IndexToSolr {
     val cid = Integer.valueOf(clusterIdScore._1) + 1
     solrDoc.addField("uid_s", cid + "cid" + "!_" + doc.id.substring(doc.id.lastIndexOf('/') + 1))
     solrDoc.addField("id", doc.id.substring(doc.id.lastIndexOf('/') + 1))
+    solrDoc.addField("url_t", doc.id.split("[_]").mkString(" "))
     solrDoc.addField("content_t", doc.tfMap.keys.mkString(" "))
     solrDoc.addField("clusterId_s", cid + "cid")
     solrDoc.addField("clusterId_i", cid)

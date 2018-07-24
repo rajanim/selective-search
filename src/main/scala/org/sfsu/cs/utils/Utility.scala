@@ -57,7 +57,7 @@ object Utility {
       writeDataToFile(data,file)
     }*/
   def getFilePath(): String = {
-    val path = System.getProperty("user.dir") + "/spark_cluster_job_op/"
+    val path = System.getProperty("user.dir") + "/"
     if (!Files.exists(Paths.get(path)))
       Files.createDirectories(Paths.get(path))
     path + new SimpleDateFormat("yyyyMMdd'_'HHmmss").format(new Date)
