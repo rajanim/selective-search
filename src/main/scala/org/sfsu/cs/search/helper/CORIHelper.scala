@@ -65,7 +65,7 @@ class CORIHelper {
     solrQuery.addTermsField("content_t")
     val resp = SolrQuerySupport.querySolr(solrClient, solrQuery, 0, null)
     val results = resp.get.getTermsResponse
-    val termsFreq = results.getTerms("content_t")
+    val termsFreq = results.getTerms("content_  t")
     val iter = termsFreq.iterator()
     val sb = new StringBuilder
     var counter = 0
@@ -73,7 +73,7 @@ class CORIHelper {
       //http://localhost:8983/solr/Test/select?indent=on
       // &q=term&wt=json&facet.limit=-1&facet.field=clusterId_i&rows=0&omitHeader=true&facet=true
       val item = iter.next()
-      val solrSubQuery = new SolrQuery(item.getTerm)
+      val solrSubQuery = new SolrQuery(item.getTerm.replace(":", "\\:"))
       solrSubQuery.set("collection", clusterCollection)
       solrSubQuery.setRows(0)
       solrSubQuery.setFacet(true)

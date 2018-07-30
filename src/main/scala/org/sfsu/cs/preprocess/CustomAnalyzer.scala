@@ -49,7 +49,7 @@ object CustomAnalyzer {
     * @return
     */
   def tokenizeFilterStopWordsStem(input: String, stopWords: Set[String]): Map[Any, Double] = {
-    val ioTerms = input.toLowerCase.split("[0-9]+|[\\W]").filterNot(stopWords)
+    val ioTerms = input.toLowerCase.split("[0-9]+|[\\W]+|_").filterNot(stopWords)
    // Utility.appendResultsToFile(ioTerms.mkString(",") + "\n", "/Users/rajanishivarajmaski1/University/CSC899/spark-2.0.0-bin-hadoop2.7/spark_cluster_job_op/terms.txt")
    // val ioTerms = input.toLowerCase.split("[0-9]+|[\\W]")
     //val stopWordsFiltered = ioTerms.filterNot(stopWords)
