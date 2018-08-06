@@ -1,4 +1,4 @@
-package org.sfsu.cs.io.selectivesearch.test;
+package org.sfsu.cs.io.search.selectivesearch;
 
 import com.lucidworks.spark.util.SolrQuerySupport;
 import com.lucidworks.spark.util.SolrSupport;
@@ -9,6 +9,8 @@ import org.apache.solr.client.solrj.SolrQuery;
 import org.apache.solr.client.solrj.response.QueryResponse;
 import org.apache.solr.common.SolrDocument;
 import org.apache.solr.common.SolrDocumentList;
+import org.sfsu.cs.search.query.CoriSelectiveSearchSolr;
+import scala.Tuple2;
 
 import java.io.BufferedWriter;
 import java.io.File;
@@ -21,23 +23,29 @@ import java.util.LinkedList;
 /**
  * Created by rajanishivarajmaski1 on 7/28/18.
  */
-public class RelResultsConcentration {
+public class RelResCoriSearchClusterConcentration {
 
+    CoriSelectiveSearchSolr coriSelectiveSearchSolr;
 
     public static void main(String[] args) {
-        RelResultsConcentration relResultsConcentration = new RelResultsConcentration();
-        String outFile = "/Users/rajanishivarajmaski1/Desktop/selective_search/anagha/clueweb_queries/" + "RelResultsClustersN30k_K50_I45.txt";
+        RelResCoriSearchClusterConcentration relResultsConcentration = new RelResCoriSearchClusterConcentration();
+        int rows = 1000;
+        int topShards = 10;
+        String outFile = "/Users/rajanishivarajmaski1/Desktop/selective_search/anagha/clueweb_queries/" + "RelResultsCoriSearchClustersN30k_K50_I30.txt";
         HashMap<Integer, LinkedList<String>> qrelsFq=  relResultsConcentration.loadFqForRel(
                 "/Users/rajanishivarajmaski1/Desktop/selective_search/anagha/clueweb_queries/qrels_withDocName.txt");
 
-        relResultsConcentration.generateResults("/Users/rajanishivarajmaski1/Desktop/selective_search/anagha/clueweb_queries/all_bow.txt",
-                "clueweb_s","localhost:9983",outFile, 10000,qrelsFq);
+        relResultsConcentration.generateResults("/Users/rajanishivarajmaski1/Desktop/selective_search/anagha/clueweb_queries/part_all_bow.txt",
+                "clueweb_s", "clueweb_qrels_cori","localhost:9983",outFile,qrelsFq, topShards, rows);
 
     }
 
 
-    protected void generateResults(String queriesFile, String collection, String zkHost, String outFile, int rows,
-                                   HashMap<Integer, LinkedList<String>>  qrelsFq) {
+    protected void generateResults(String queriesFile, String collection, String coriStatColl, String zkHost, String outFile,
+                                   HashMap<Integer, LinkedList<String>>  qrelsFq,  int topShards, int rows) {
+        coriSelectiveSearchSolr = new CoriSelectiveSearchSolr();
+        coriSelectiveSearchSolr.initForVariantTIS(zkHost,collection,coriStatColl);
+
         LineIterator lineIterator = null;
         String line;
         try {
@@ -46,7 +54,8 @@ public class RelResultsConcentration {
                 line = lineIterator.nextLine();
                 String[] idQuery = line.split(":");
                 String fq = getFq(idQuery[0].trim(), qrelsFq);
-                SolrDocumentList solrDocumentList = querySolr(idQuery[1].trim(), collection, zkHost, rows,fq);
+                SolrDocumentList solrDocumentList = querySolr(idQuery[1].trim(), fq, collection,coriStatColl, zkHost, topShards, rows);
+                if(solrDocumentList!=null)
                 appendResultsToFile(idQuery[0].trim(), solrDocumentList.iterator(), outFile);
             }
         } catch (IOException e) {
@@ -69,17 +78,17 @@ public class RelResultsConcentration {
         return fqQuery.toString();
     }
 
-    protected SolrDocumentList querySolr(String query, String collection, String zkHost, int rows, String fq) {
-        SolrClient solrClient = SolrSupport.getCachedCloudClient(zkHost);
-        SolrQuery solrQuery = new SolrQuery();
-        solrQuery.set("collection", collection);
-        solrQuery.setQuery(query);
-        solrQuery.setRequestHandler("edismax");
-        solrQuery.set("fl", "id, clusterId_i, score");
-        solrQuery.setRows(rows);
-        solrQuery.setFilterQueries(fq);
-        QueryResponse collResp = SolrQuerySupport.querySolr(solrClient, solrQuery, 0, null).get();
-        return collResp.getResults();
+    protected SolrDocumentList querySolr(String query, String fq, String clusterColl, String coriStatCollection, String zkHost, int topShards, int rows) {
+
+        Tuple2 results = coriSelectiveSearchSolr.executeCoriSelectiveSearch(zkHost, clusterColl,
+                coriStatCollection, query, topShards, 0.4, "id, score, clusterId_i", rows, fq);
+        QueryResponse response;
+        if (results != null) {
+            response = (QueryResponse) results._2();
+
+            return response.getResults();
+        } else
+            return null;
     }
 
     protected void appendResultsToFile(String queryId, Iterator<SolrDocument> solrDocumentList, String outFile) {
@@ -95,17 +104,21 @@ public class RelResultsConcentration {
             // true = append file
             fw = new FileWriter(file.getAbsoluteFile(), true);
             bw = new BufferedWriter(fw);
-            int rank = 1;
+            StringBuilder builder = new StringBuilder();
+            builder.append(queryId).append(" ");
+            builder.append("\n");
+            int[] array = new int[51];
             while (solrDocumentList.hasNext()) {
                 SolrDocument document = solrDocumentList.next();
-                StringBuilder builder = new StringBuilder();
-                builder.append(queryId).append(" ").append("0").append(" ");
-                builder.append(document.get("id")).append(" ");
-                builder.append(rank++).append(" ");
-                builder.append(document.get("score")).append(" ");
-                builder.append(document.get("clusterId_i")).append("\n");
-                bw.write(builder.toString());
+                int clusterId = Integer.parseInt(document.get("clusterId_i").toString());
+                array[clusterId]++;
             }
+            for(int i =1; i < array.length ; i++){
+                builder.append(i + " " + array[i]).append("\n");
+
+            }
+            builder.append("\n");
+            bw.write(builder.toString());
 
             // System.out.println("Done");
 

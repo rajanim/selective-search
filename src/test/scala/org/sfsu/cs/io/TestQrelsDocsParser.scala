@@ -29,7 +29,7 @@ class TestQrelsDocsParser extends TestSuiteBuilder{
 
   test("customAnalyzer.stopwords"){
     val stopWords = Set[String]("the", "fieldposition", "del", "a", "nov", "termposition" ).toSet
-    val map = CustomAnalyzer.tokenizeFilterStopWordsStem("14nov2008hotelfontainebleau20a the fieldposition download12mb", stopWords)
+    val map = CustomAnalyzer.tokenizeFilterStopWordsStem("14nov2008hotelfontainebleau20a the field_position download12mb", stopWords)
 
     map.foreach(println(_))
 

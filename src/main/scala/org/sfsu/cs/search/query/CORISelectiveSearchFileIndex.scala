@@ -38,14 +38,21 @@ class CORISelectiveSearchFileIndex {
   def executeCoriSelectiveSearch(zkHost: String, clusterCollection: String,
                                  searchQuery: String, topShards: Int, b: Double, fields:String): SolrDocumentList = {
     val shardScore = mutable.HashMap.empty[String, Double]
+    val queryTerms = searchQuery.split(" ")
+    queryTerms.foreach(term => {
 
-    val shards = coriHelper.termDfMap.get(searchQuery).get
-    val cf = shards.filter(_ != 0).size
-    var shardCnt=0
-    for (j <- 0 until shards.size ) {
-      shardCnt+=1
-      shardScore.put("shard"+shardCnt, getTIScore(shards(j), coriHelper.arrayCw(j), shards.size, cf, b))
-    }
+      val shards = coriHelper.termDfMap.get(term.trim).get
+      val cf = shards.filter(_ != 0).size
+      var shardCnt=0
+      for (j <- 0 until shards.size ) {
+        shardCnt+=1
+        val score = shardScore.getOrElse("shard" + shardCnt, 0.0)
+        val finalScore = getTIScore(shards(j), coriHelper.arrayCw(j), shards.size, cf, b) + score
+        shardScore.put("shard" + shardCnt, finalScore)
+      }
+
+    })
+
 
     val sortedMap = shardScore.toSeq.sortWith(_._2 > _._2)
     println(sortedMap.mkString("|"))

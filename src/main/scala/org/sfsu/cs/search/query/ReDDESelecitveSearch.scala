@@ -23,13 +23,14 @@ class ReDDESelecitveSearch {
     * @return
     */
   def relevantDDEBasedSelectiveSearch(zkHost: String, csIndexColl: String, clusterColl: String, searchText: String,
-                                      numRowsCSIndex: Int, numShards: Int, rowsToRet:Int): (Int, SolrDocumentList) = {
+                                      numRowsCSIndex: Int, numShards: Int, rowsToRet:Int, fq:String): (Int, SolrDocumentList) = {
     //For the org.sfsu.cs.search term/text build a org.sfsu.cs.search query to cs index, get first 100 docs
     var totalQtime = 0
     var solrQuery = new SolrQuery()
     solrQuery.set("collection", csIndexColl)
     solrQuery.setRows(numRowsCSIndex)
     solrQuery.setQuery(searchText)
+    solrQuery.setFilterQueries(fq)
     solrQuery.set("fl", "clusterId_s", "score", "_route_")
     val solrClient = getCachedCloudClient(zkHost)
     println(solrQuery.toQueryString)

@@ -25,8 +25,8 @@ class TestTextFileParser extends TestSuiteBuilder {
 
     val sc = SparkContext.getOrCreate(new SparkConf().setAppName("test app"))
     val tfDocs = TextFileParser.getTFDocuments(sc,
-      "/Users/rajanishivarajmaski1/University/csc895/selective-org.sfsu.cs.search/src/test/resources/test_records",
-      2, "/Users/rajanishivarajmaski1/University/csc895/selective-org.sfsu.cs.search/src/test/resources/stopwords.txt")
+      "/Users/rajanishivarajmaski1/University/csc895/selective-search/src/test/resources/test_records/",
+      2, "/Users/rajanishivarajmaski1/University/csc895/selective-search/src/test/resources/stopwords.txt")
     println(tfDocs.take(1).mkString(" "))
     val docVectors = VectorImpl.getDocVectors(sc, tfDocs, 20)
     val docVector = docVectors.first()

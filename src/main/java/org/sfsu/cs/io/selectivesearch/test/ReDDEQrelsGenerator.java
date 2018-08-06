@@ -24,6 +24,7 @@ public class ReDDEQrelsGenerator {
     public ReDDEQrelsGenerator() {
         reDDESelecitveSearch = new ReDDESelecitveSearch();
     }
+
     public static void main(String[] args) {
         String fileName = "1M_ReddeSearch_ResultsFile_10Shards_10Docs.txt";
         ReDDEQrelsGenerator reDDEQrelsGenerator = new ReDDEQrelsGenerator();
@@ -60,7 +61,7 @@ public class ReDDEQrelsGenerator {
 
     protected SolrDocumentList querySolr(String query, String clusterColl, String statCollection, String zkHost, int rowsToRet) {
         Tuple2 response = reDDESelecitveSearch.relevantDDEBasedSelectiveSearch(zkHost, statCollection, clusterColl,
-                query, 10, 20, rowsToRet);
+                query, 10, 20, rowsToRet,"");
         if(response!=null) {
             qTimeBuffer.append((int) (response._1())).append("\n");
             return response != null ? (SolrDocumentList) response._2() : null;

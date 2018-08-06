@@ -65,7 +65,7 @@ class CORIHelper {
     solrQuery.addTermsField("content_t")
     val resp = SolrQuerySupport.querySolr(solrClient, solrQuery, 0, null)
     val results = resp.get.getTermsResponse
-    val termsFreq = results.getTerms("content_  t")
+    val termsFreq = results.getTerms("content_t")
     val iter = termsFreq.iterator()
     val sb = new StringBuilder
     var counter = 0

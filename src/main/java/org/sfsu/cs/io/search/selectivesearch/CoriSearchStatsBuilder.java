@@ -11,12 +11,12 @@ public class CoriSearchStatsBuilder {
 
     public static void main(String[] args) {
         String zkHost = "localhost:9983";
-        String clusterCollection = "clueweb";
-        int numClusters = 75;
+        String clusterCollection = "clueweb_s";
+        int numClusters = 50;
         CORIHelper coriHelper = new CORIHelper();
 
         //coriHelper.logTermDFIndexCwAvgCwForCORI(clusterCollection, zkHost, numClusters);
-        coriHelper.indexTermDFIndexCwAvgCwForCORI("clueweb_cori", clusterCollection, zkHost, numClusters);
+        coriHelper.indexTermDFIndexCwAvgCwForCORI("clueweb_qrels_cori", clusterCollection, zkHost, numClusters);
 
     }
 }

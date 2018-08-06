@@ -12,7 +12,7 @@ public class ReDDESearchExecutor {
 
     public static void main(String[] args) {
         ReDDESelecitveSearch reDDESelecitveSearch = new ReDDESelecitveSearch();
-        Tuple2 response = reDDESelecitveSearch.relevantDDEBasedSelectiveSearch("localhost:9983", "clueweb_redde", "clueweb", "obama family tree", 10, 75, 100);
+        Tuple2 response = reDDESelecitveSearch.relevantDDEBasedSelectiveSearch("localhost:9983", "clueweb_redde", "clueweb", "obama family tree", 10, 75, 100,"");
         SolrDocumentList documentList = (SolrDocumentList) response._2();
         for (SolrDocument doc : documentList) {
             System.out.println(doc.get("id"));
