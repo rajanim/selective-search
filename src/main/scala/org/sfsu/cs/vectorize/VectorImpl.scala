@@ -37,9 +37,11 @@ object VectorImpl {
     println(s"doc freq size: ", docFreqs.count())
 
     val ordering = Ordering.by[(Any, Int), Int](_._2)
-    val topDocFreqs = docFreqs.top(numFeatures)(ordering)
+    docFreqs.collect().foreach(println(_))
+    val topDocFreqs = docFreqs.top(numFeatures)(ordering).filter(_._2>2)
     println(s"LOG: End topDocFreqs map builder: ${Calendar.getInstance().getTime()} ")
-
+    println(s"topDocFreqs: ")
+    topDocFreqs.foreach(println(_))
     val rddTopDocFreqs = sc.parallelize(topDocFreqs)
 
     val idfs = rddTopDocFreqs.map {
