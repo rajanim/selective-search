@@ -1,0 +1,12 @@
+Here's the route I am following to test SharePoint connect and crawl. Really appreciate team cooperation in providing required access, could be limited to QA, to test and then we can come up with why/which scenario did(didn't) work.
+
+1. Testing initially only on the linux env. 
+
+2. Fusion was tested to crawl with app/url Rocky had created (users: fusion4dev, luthria, maski) http://sharepointqa-na.ms.com/IT/rockysandbox
+	Fusion was able to crawl that site with Rocky's credentials. 
+	Fusion was not able to crawl it with fusion4dev credentials - It gave unique error as "not available" so not sure what could be the issue there yet. 
+	Fusion was not able t crawl the site with Maski's credentials - It reported 401 error : '401: Unauthorized' for endpoint: http://sharepointqa-na.ms.com/IT/rockysandbox/_vti_bin/SiteData.asmx
+	
+2. Fusion was tested with app created by Rajani (users: fusion4dev, maski) http://sharepointqa-na.ms.com/IT/maski
+	Fusion was able to crawl it with maski credentials.
+	Fusion was not able to crawl it with fusion4dev credentials - It gave unique error as "not available" so not sure what could be the issue there yet.
