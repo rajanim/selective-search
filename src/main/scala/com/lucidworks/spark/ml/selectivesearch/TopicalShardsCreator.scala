@@ -29,6 +29,7 @@ class TopicalShardsCreator extends RDDProcessor {
   def getName: String = "topicalshardscreator"
 
   var stopWordsFilePath = ""
+  var minDocFreq=1
   var numFeatures: Int = 0
   var numClusters: Int = 0
   var numIterations: Int = 0
@@ -97,6 +98,10 @@ class TopicalShardsCreator extends RDDProcessor {
         .longOpt("numPartitions").build,
       Option.builder()
         .hasArg()
+        .desc("min doc freq for vectors")
+        .longOpt("minDocFreq").build,
+      Option.builder()
+        .hasArg()
         .desc("Directory path to save trained model")
         .longOpt("saveModelAt").build,
       Option.builder()
@@ -134,7 +139,7 @@ class TopicalShardsCreator extends RDDProcessor {
         executeProjectionPhase(sc, tfDocs)
       }
       else {
-        val docVectors = VectorImpl.getDocVectors(sc, tfDocs, numFeatures)
+        val docVectors = VectorImpl.getDocVectors(sc, tfDocs, numFeatures, minDocFreq)
         val kMeansResult = initKmeans(docVectors)
         IndexToSolr.indexToSolr(docVectors, zkHost, collection, kMeansResult)
       }
@@ -145,7 +150,7 @@ class TopicalShardsCreator extends RDDProcessor {
         executeProjectionPhase(sc, tfDocs)
       }
       else {
-        val docVectors = VectorImpl.getDocVectors(sc, tfDocs, numFeatures)
+        val docVectors = VectorImpl.getDocVectors(sc, tfDocs, numFeatures, minDocFreq)
         val kMeansResult = initKmeans(docVectors)
         IndexToSolr.indexToSolr(docVectors, zkHost, collection, kMeansResult)
       }
@@ -246,6 +251,7 @@ class TopicalShardsCreator extends RDDProcessor {
 
   def parseCmdLineArgsToVariables(cli: CommandLine) {
     stopWordsFilePath = cli.getOptionValue("stopWordsFilePath", "")
+    minDocFreq = cli.getOptionValue("minDocFreq", "5").toInt
     numFeatures = cli.getOptionValue("numFeatures", "50").toInt
     numClusters = cli.getOptionValue("numClusters", "2").toInt
     numIterations = cli.getOptionValue("numIterations", "5").toInt
@@ -271,6 +277,7 @@ class TopicalShardsCreator extends RDDProcessor {
     logger.info(" warc Files directory path: " + warcFilesPath)
     logger.info(" text Files directory path: " + textFilesPath)
     logger.info(" model saved at: " + saveModelAt)
+    logger.info("min doc freq", minDocFreq)
 
     //solr cloud values
     zkHost = cli.getOptionValue("zkHost", "localhost:9983")

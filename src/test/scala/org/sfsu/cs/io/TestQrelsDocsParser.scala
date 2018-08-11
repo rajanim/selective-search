@@ -20,7 +20,7 @@ class TestQrelsDocsParser extends TestSuiteBuilder{
       "/Users/rajanishivarajmaski1/University/csc895/selective-search/src/test/resources/test_records/",
       20, "/Users/rajanishivarajmaski1/University/csc895/selective-search/src/test/resources/stopwords.txt")
     println(tfDocs.take(1).mkString(" "))
-    val docVectors = VectorImpl.getDocVectors(sc, tfDocs, 50)
+    val docVectors = VectorImpl.getDocVectors(sc, tfDocs, 50,2)
     val result = KMeanClustering.train(data = docVectors.map(docVec => docVec.vector), 3, 5, 50)
     IndexToSolr.indexToSolr(docVectors, "localhost:9983", "word-count", result)
 

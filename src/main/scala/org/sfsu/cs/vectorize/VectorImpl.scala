@@ -25,7 +25,7 @@ object VectorImpl {
     * @param numFeatures
     * @return
     */
-  def getDocVectors(sc: SparkContext, tfDocs: RDD[TFDocument], numFeatures : Int ) : RDD[DocVector]= {
+  def getDocVectors(sc: SparkContext, tfDocs: RDD[TFDocument], numFeatures : Int, minDocFreq: Int) : RDD[DocVector]= {
     val numDocs = tfDocs.count()
     println(s"LOG: End numDocs count: $numDocs, at time ${Calendar.getInstance().getTime()} ")
     println(s"LOG: Start docFreqs map builder: ${Calendar.getInstance().getTime()} ")
@@ -37,8 +37,7 @@ object VectorImpl {
     println(s"doc freq size: ", docFreqs.count())
 
     val ordering = Ordering.by[(Any, Int), Int](_._2)
-    docFreqs.collect().foreach(println(_))
-    val topDocFreqs = docFreqs.top(numFeatures)(ordering).filter(_._2>2)
+    val topDocFreqs = docFreqs.top(numFeatures)(ordering).filter(_._2>minDocFreq)
     println(s"LOG: End topDocFreqs map builder: ${Calendar.getInstance().getTime()} ")
     println(s"topDocFreqs: ")
     topDocFreqs.foreach(println(_))

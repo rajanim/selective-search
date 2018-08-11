@@ -41,6 +41,7 @@ class ReDDEHelper {
         solrInputDocumentList += getSolrInputDoc(solrDoc)
       }
       println("solrInputDocumentList", solrInputDocumentList.size)
+      if(solrInputDocumentList.size>0)
       SolrSupport.sendBatchToSolr(solrClient, csIndexCollection, solrInputDocumentList, scala.Option(60))
 
     }

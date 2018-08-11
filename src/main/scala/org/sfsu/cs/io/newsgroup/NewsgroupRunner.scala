@@ -25,7 +25,7 @@ object NewsgroupRunner {
     val tfDocs = TextFileParser.getTFDocuments(sc,
       dirPath,
       numPartitions, "/Users/rajanishivarajmaski1/University/csc895/selective-org.sfsu.cs.search/src/test/resources/stopwords.txt")
-    val docVectors = VectorImpl.getDocVectors(sc, tfDocs, numFeatures)
+    val docVectors = VectorImpl.getDocVectors(sc, tfDocs, numFeatures,5)
     val result = KMeanClustering.train(data = docVectors.map(docVec => docVec.vector), k, numIterations, numFeatures)
     Utility.writeToFile(result.mkString("\n"), Utility.getFilePath() + "_centroids")
     IndexToSolr.indexToSolr(docVectors, "localhost:9983", "news_byte", result)

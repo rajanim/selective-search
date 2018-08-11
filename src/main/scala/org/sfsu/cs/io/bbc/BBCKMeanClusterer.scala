@@ -25,7 +25,7 @@ object BBCKMeanClusterer {
       dirPath,
       numPartitions)
     val tfDocs = TextFileParser.getTFDocsForStringDocs(sc, stringDocs, partitions = numPartitions, stopWordsFilePath = stopWords)
-    val docVectors = VectorImpl.getDocVectors(sc, tfDocs, numFeatures)
+    val docVectors = VectorImpl.getDocVectors(sc, tfDocs, numFeatures,2)
     val result = KMeanClustering.train(data = docVectors.map(docVec => docVec.vector), k, numIterations, numFeatures)
     Utility.writeToFile(result.mkString("\n"), Utility.getFilePath() + "_centroids")
     IndexToSolr.indexToSolr(docVectors, "localhost:9983", "clueweb_s", result)

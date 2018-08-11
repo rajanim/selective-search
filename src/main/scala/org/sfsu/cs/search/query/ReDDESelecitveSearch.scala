@@ -47,7 +47,7 @@ class ReDDESelecitveSearch {
       solrQuery.set("collection", clusterColl)
       solrQuery.setQuery(searchText)
       solrQuery.set("_route_", clusters)
-      solrQuery.set("fl", "clusterId_s", "score", "content_t", "id")
+      solrQuery.set("fl", "clusterId_s", "score", "id", "clusterId_i")
       solrQuery.setRows(rowsToRet)
       println("query to large collection", solrQuery.toQueryString)
       val collResp = SolrQuerySupport.querySolr(solrClient, solrQuery, 0, null).get

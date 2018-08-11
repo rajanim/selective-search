@@ -36,7 +36,7 @@ class TestClueweb09Parser extends TestSuiteBuilder {
     assertResult(37237)(stringDocs.count())
     val tfDocs = Clueweb09Parser.getTFDocuments(sc, stringDocs, 4, "" )
     println(tfDocs.take(1).mkString(" "))
-    val docVectors = VectorImpl.getDocVectors(sc,tfDocs,20)
+    val docVectors = VectorImpl.getDocVectors(sc,tfDocs,20,2)
     println(docVectors.take(1).mkString(" "))
   }
 
@@ -47,7 +47,7 @@ class TestClueweb09Parser extends TestSuiteBuilder {
     assertResult(37237)(stringDocs.count())
     val tfDocs = Clueweb09Parser.getTFDocuments(sc, stringDocs, 4, "" )
     println(tfDocs.take(1).mkString(" "))
-    val docVectors = VectorImpl.getDocVectors(sc,tfDocs,20)
+    val docVectors = VectorImpl.getDocVectors(sc,tfDocs,20,2)
     val docVector = docVectors.first()
     val result = KMeanClustering.train(data = docVectors.map(docVec => docVec.vector), 10, 5, 20)
     println("docVector", docVector.tfMap.mkString(" "))
@@ -63,7 +63,7 @@ class TestClueweb09Parser extends TestSuiteBuilder {
     assertResult(37237)(stringDocs.count())
     val tfDocs = Clueweb09Parser.getTFDocuments(sc, stringDocs, 4, "" )
     println(tfDocs.take(1).mkString(" "))
-    val docVectors = VectorImpl.getDocVectors(sc,tfDocs,2000)
+    val docVectors = VectorImpl.getDocVectors(sc,tfDocs,2000,2)
     val docVector = docVectors.first()
     val result = KMeanClustering.train(data = docVectors.map(docVec => docVec.vector), 10, 5, 2000)
     println("docVector", docVector.tfMap.mkString(" "))

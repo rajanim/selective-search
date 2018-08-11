@@ -28,7 +28,7 @@ class TestTextFileParser extends TestSuiteBuilder {
       "/Users/rajanishivarajmaski1/University/csc895/selective-search/src/test/resources/test_records/",
       2, "/Users/rajanishivarajmaski1/University/csc895/selective-search/src/test/resources/stopwords.txt")
     println(tfDocs.take(1).mkString(" "))
-    val docVectors = VectorImpl.getDocVectors(sc, tfDocs, 20)
+    val docVectors = VectorImpl.getDocVectors(sc, tfDocs, 20,2)
     val docVector = docVectors.first()
     val result = KMeanClustering.train(data = docVectors.map(docVec => docVec.vector), 3, 5, 20)
     println("docVector", docVector.tfMap.mkString(" "))

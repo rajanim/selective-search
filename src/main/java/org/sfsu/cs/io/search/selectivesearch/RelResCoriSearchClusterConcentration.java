@@ -31,11 +31,11 @@ public class RelResCoriSearchClusterConcentration {
         RelResCoriSearchClusterConcentration relResultsConcentration = new RelResCoriSearchClusterConcentration();
         int rows = 1000;
         int topShards = 10;
-        String outFile = "/Users/rajanishivarajmaski1/Desktop/selective_search/anagha/clueweb_queries/" + "RelResultsCoriSearchClustersN30k_K50_I30.txt";
+        String outFile = "/Users/rajanishivarajmaski1/Desktop/selective_search/anagha/clueweb_queries/" + "RelResultsCoriSearchClustersN30k_K25_I5.txt";
         HashMap<Integer, LinkedList<String>> qrelsFq=  relResultsConcentration.loadFqForRel(
                 "/Users/rajanishivarajmaski1/Desktop/selective_search/anagha/clueweb_queries/qrels_withDocName.txt");
 
-        relResultsConcentration.generateResults("/Users/rajanishivarajmaski1/Desktop/selective_search/anagha/clueweb_queries/part_all_bow.txt",
+        relResultsConcentration.generateResults("/Users/rajanishivarajmaski1/Desktop/selective_search/anagha/clueweb_queries/all_bow.txt",
                 "clueweb_s", "clueweb_qrels_cori","localhost:9983",outFile,qrelsFq, topShards, rows);
 
     }
@@ -114,6 +114,7 @@ public class RelResCoriSearchClusterConcentration {
                 array[clusterId]++;
             }
             for(int i =1; i < array.length ; i++){
+                if(array[i]>0)
                 builder.append(i + " " + array[i]).append("\n");
 
             }

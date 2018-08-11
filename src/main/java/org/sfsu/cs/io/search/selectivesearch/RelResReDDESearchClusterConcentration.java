@@ -30,12 +30,14 @@ public class RelResReDDESearchClusterConcentration {
         int topShards = 10;
         int numCSRows=10;
         String outFile = "/Users/rajanishivarajmaski1/Desktop/selective_search/anagha/clueweb_queries/"
-                + "RelResReDDESearchClusterConcentration.txt";
+                + "RelResReDDESearchClusterConcentration_50k_5percent.txt";
         HashMap<Integer, LinkedList<String>> qrelsFq=  relResultsConcentration.loadFqForRel(
                 "/Users/rajanishivarajmaski1/Desktop/selective_search/anagha/clueweb_queries/qrels_withDocName.txt");
 
-        relResultsConcentration.generateResults("/Users/rajanishivarajmaski1/Desktop/selective_search/anagha/clueweb_queries/part_all_bow.txt",
-                "clueweb_s", "clueweb_qrels_cori","localhost:9983",outFile,qrelsFq, numCSRows, topShards, rows);
+        relResultsConcentration.generateResults("/Users/rajanishivarajmaski1/Desktop/selective_search/anagha/clueweb_queries/all_bow.txt",
+                "clueweb_s", "clueweb_qrels_redde","localhost:9983",outFile,qrelsFq, numCSRows, topShards, rows);
+        System.out.println("done");
+        System.exit(0);
 
     }
 
@@ -53,7 +55,7 @@ public class RelResReDDESearchClusterConcentration {
                 String fq = getFq(idQuery[0].trim(), qrelsFq);
                 SolrDocumentList solrDocumentList = querySolr(idQuery[1].trim(), collection,coriStatColl, zkHost, rows,fq,numRowsCSIndx,topShards);
                 if(solrDocumentList!=null)
-                appendResultsToFile(idQuery[0].trim(), solrDocumentList.iterator(), outFile);
+                appendResultsToFile(line.trim(), solrDocumentList.iterator(), outFile);
             }
         } catch (IOException e) {
 
@@ -112,6 +114,7 @@ public class RelResReDDESearchClusterConcentration {
                 array[clusterId]++;
             }
             for(int i =1; i < array.length ; i++){
+                if(array[i]>0)
                 builder.append(i + " " + array[i]).append("\n");
 
             }
