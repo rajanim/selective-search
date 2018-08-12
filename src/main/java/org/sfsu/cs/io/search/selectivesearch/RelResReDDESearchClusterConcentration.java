@@ -28,9 +28,9 @@ public class RelResReDDESearchClusterConcentration {
         RelResReDDESearchClusterConcentration relResultsConcentration = new RelResReDDESearchClusterConcentration();
         int rows = 1000;
         int topShards = 10;
-        int numCSRows=10;
+        int numCSRows=5000;
         String outFile = "/Users/rajanishivarajmaski1/Desktop/selective_search/anagha/clueweb_queries/"
-                + "RelResReDDESearchClusterConcentration_50k_5percent.txt";
+                + "RelOnlyFilterResReDDESearchClusterConcentration_K50_N35K_I10_10percent_numCSRowsMinus1.txt";
         HashMap<Integer, LinkedList<String>> qrelsFq=  relResultsConcentration.loadFqForRel(
                 "/Users/rajanishivarajmaski1/Desktop/selective_search/anagha/clueweb_queries/qrels_withDocName.txt");
 
