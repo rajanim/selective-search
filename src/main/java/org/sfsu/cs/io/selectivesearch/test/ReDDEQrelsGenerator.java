@@ -12,7 +12,9 @@ import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.util.HashMap;
 import java.util.Iterator;
+import java.util.LinkedList;
 
 /**
  * Created by rajanishivarajmaski1 on 5/16/18.
@@ -26,18 +28,21 @@ public class ReDDEQrelsGenerator {
     }
 
     public static void main(String[] args) {
-        String fileName = "1M_ReddeSearch_ResultsFile_10Shards_10Docs.txt";
+        String fileName = "ReddeSearch_All_ResultsFile_qrels_10Shards.txt";
         ReDDEQrelsGenerator reDDEQrelsGenerator = new ReDDEQrelsGenerator();
-        int rows = 10;
+        int rows = 1000;
+
+        HashMap<Integer, LinkedList<String>> qrelsFq=  reDDEQrelsGenerator.loadFqForRel(
+                "/Users/rajanishivarajmaski1/Desktop/selective_search/anagha/clueweb_queries/qrels_withDocName.txt");
 
         reDDEQrelsGenerator.generateResults("/Users/rajanishivarajmaski1/Desktop/selective_search/anagha/clueweb_queries/all_bow.txt",
-                "clueweb", "clueweb_redde", "localhost:9983", "/Users/rajanishivarajmaski1/Desktop/selective_search/anagha/clueweb_queries/" + fileName, rows);
+                "clueweb_s", "clueweb_qrels_redde", "localhost:9983", "/Users/rajanishivarajmaski1/Desktop/selective_search/anagha/clueweb_queries/" + fileName, rows, qrelsFq);
 
-        Utility.writeToFile(reDDEQrelsGenerator.qTimeBuffer.toString(), "/Users/rajanishivarajmaski1/Desktop/selective_search/anagha/clueweb_queries/"+"QTime_ReDDE");
+        //Utility.writeToFile(reDDEQrelsGenerator.qTimeBuffer.toString(), "/Users/rajanishivarajmaski1/Desktop/selective_search/anagha/clueweb_queries/"+"QTime_ReDDE");
 
         System.exit(0);
     }
-    protected void generateResults(String queriesFile, String collection, String statsCollection, String zkHost, String outFile, int rowsToRet) {
+    protected void generateResults(String queriesFile, String collection, String statsCollection, String zkHost, String outFile, int rowsToRet, HashMap<Integer, LinkedList<String>>  qrelsFq) {
         LineIterator lineIterator = null;
         String line;
         try {
@@ -45,7 +50,8 @@ public class ReDDEQrelsGenerator {
             while (lineIterator.hasNext()) {
                 line = lineIterator.nextLine();
                 String[] idQuery = line.split(":");
-                SolrDocumentList solrDocumentList = querySolr(idQuery[1].trim(), collection, statsCollection, zkHost, rowsToRet);
+                String fq = getFq(idQuery[0].trim(), qrelsFq);
+                SolrDocumentList solrDocumentList = querySolr(idQuery[1].trim(), collection, statsCollection, zkHost, rowsToRet, fq);
                 if (solrDocumentList != null)
                     appendResultsToFile(idQuery[0].trim(), solrDocumentList.iterator(), outFile);
             }
@@ -59,15 +65,64 @@ public class ReDDEQrelsGenerator {
 
     }
 
-    protected SolrDocumentList querySolr(String query, String clusterColl, String statCollection, String zkHost, int rowsToRet) {
+    protected SolrDocumentList querySolr(String query, String clusterColl, String statCollection, String zkHost, int rowsToRet, String fq) {
         Tuple2 response = reDDESelecitveSearch.relevantDDEBasedSelectiveSearch(zkHost, statCollection, clusterColl,
-                query, 10, 20, rowsToRet,"");
+                query, 1000, 10, rowsToRet,fq);
         if(response!=null) {
             qTimeBuffer.append((int) (response._1())).append("\n");
             return response != null ? (SolrDocumentList) response._2() : null;
         }else{
             return null;
         }
+    }
+
+    String getFq(String id, HashMap<Integer, LinkedList<String>> qrelsFq) {
+        LinkedList<String> ids = qrelsFq.get(Integer.parseInt(id));
+        StringBuffer fqQuery = new StringBuffer();
+        fqQuery.append("(");
+        for (String str : ids) {
+            fqQuery.append("\"").append(str).append("\"").append(" OR ");
+        }
+        fqQuery.append("id:0)");
+        //System.out.println(fqQuery.toString());
+        return fqQuery.toString();
+    }
+
+
+    HashMap<Integer, LinkedList<String>> loadFqForRel(String qrelsFile) {
+
+        LineIterator lineIterator;
+        HashMap<Integer, LinkedList<String>>   qrelsFq = new HashMap<>();
+        String line;
+        int number = 1;
+        int qNum;
+        int docRel;
+        try {
+            lineIterator = FileUtils.lineIterator(new File(qrelsFile), "UTF-8");
+            LinkedList<String> docNumbers = new LinkedList<>();
+            while (lineIterator.hasNext()) {
+                line = lineIterator.nextLine();
+                String[] qrel = line.split(" ");
+                qNum = Integer.parseInt(qrel[0]);
+                docRel = Integer.parseInt(qrel[3].trim());
+                if (qNum == number) {
+                   // if(docRel>0)
+                        docNumbers.add(qrel[2]);
+                } else {
+                    qrelsFq.put(number, docNumbers);
+                    number++;
+                    docNumbers = new LinkedList<>();
+                    if(docRel>0)
+                        docNumbers.add(qrel[2]);
+
+                }
+            }
+
+        } catch (IOException io) {
+
+        }
+        return qrelsFq;
+
     }
 
     protected void appendResultsToFile(String queryId, Iterator<SolrDocument> solrDocumentList, String outFile) {
@@ -117,6 +172,8 @@ public class ReDDEQrelsGenerator {
 
             }
         }
+
+
 
     }
 }

@@ -30,8 +30,8 @@ public class RelResCoriSearchClusterConcentration {
     public static void main(String[] args) {
         RelResCoriSearchClusterConcentration relResultsConcentration = new RelResCoriSearchClusterConcentration();
         int rows = 1000;
-        int topShards = 10;
-        String outFile = "/Users/rajanishivarajmaski1/Desktop/selective_search/anagha/clueweb_queries/" + "RelResultsCoriSearchClustersN30k_K25_I5.txt";
+        int topShards = 5;
+        String outFile = "/Users/rajanishivarajmaski1/Desktop/selective_search/anagha/clueweb_queries/" + "aug_12_RelResultsCoriSearchClustersN35k_K50_I10_T5.txt";
         HashMap<Integer, LinkedList<String>> qrelsFq=  relResultsConcentration.loadFqForRel(
                 "/Users/rajanishivarajmaski1/Desktop/selective_search/anagha/clueweb_queries/qrels_withDocName.txt");
 
@@ -56,7 +56,7 @@ public class RelResCoriSearchClusterConcentration {
                 String fq = getFq(idQuery[0].trim(), qrelsFq);
                 SolrDocumentList solrDocumentList = querySolr(idQuery[1].trim(), fq, collection,coriStatColl, zkHost, topShards, rows);
                 if(solrDocumentList!=null)
-                appendResultsToFile(idQuery[0].trim(), solrDocumentList.iterator(), outFile);
+                appendResultsToFile(line, solrDocumentList.iterator(), outFile);
             }
         } catch (IOException e) {
 

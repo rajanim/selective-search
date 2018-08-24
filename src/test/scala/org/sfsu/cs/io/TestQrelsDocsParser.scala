@@ -1,5 +1,7 @@
 package org.sfsu.cs.io
 
+import java.io.File
+
 import org.apache.spark.{SparkConf, SparkContext}
 import org.sfsu.cs.clustering.kmeans.KMeanClustering
 import org.sfsu.cs.index.IndexToSolr
@@ -7,6 +9,8 @@ import org.sfsu.cs.io.text.TextFileParser
 import org.sfsu.cs.preprocess.CustomAnalyzer
 import org.sfsu.cs.vectorize.VectorImpl
 import util.TestSuiteBuilder
+
+import scala.io.Source
 
 /**
   * Created by rajanishivarajmaski1 on 2/19/18.
@@ -33,5 +37,12 @@ class TestQrelsDocsParser extends TestSuiteBuilder{
 
     map.foreach(println(_))
 
+  }
+
+  test("customAnalyzer.htmlText"){
+    val bufferedSource = Source.fromFile("/Users/rajanishivarajmaski1/Desktop/test.html").getLines().mkString
+
+    val text = CustomAnalyzer.htmlToText(bufferedSource)
+    println(text)
   }
 }

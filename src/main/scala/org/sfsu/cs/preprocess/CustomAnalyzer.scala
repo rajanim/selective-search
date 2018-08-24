@@ -1,7 +1,10 @@
 package org.sfsu.cs.preprocess
 
 
+import org.dom4j.Element
 import org.jsoup.Jsoup
+import org.jsoup.nodes.Document
+import org.jsoup.select.Elements
 import org.lemurproject.kstem.KrovetzStemmer
 import org.sfsu.cs.utils.Utility
 
@@ -98,8 +101,18 @@ object CustomAnalyzer {
     * @return The plain text representation
     */
   def htmlToText(input: String): String = try {
-    Jsoup.parse(input).body().text()
-  } catch {
+     val doc = Jsoup.parse(input)
+     val buffer = new StringBuffer()
+    buffer.append(doc.text())
+     if(doc.select("meta[name=description]").hasAttr("content"))
+     buffer.append(doc.select("meta[name=description]").get(0).attr("content")).append(" ")
+     if(doc.select("meta[name=keywords]").hasAttr("content"))
+       buffer.append(doc.select("meta[name=keywords]").first().attr("content"))
+     buffer.toString
+  }
+
+
+    catch {
     case e: Exception => ""
     case e: StackOverflowError => ""
   }

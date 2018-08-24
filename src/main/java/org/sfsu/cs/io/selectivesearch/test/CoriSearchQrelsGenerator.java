@@ -39,14 +39,14 @@ public class CoriSearchQrelsGenerator {
 
 
     public static void main(String[] args) {
-        String fileName = "1M_CoriSearch_ResultsFile_"+topShards+"_.txt";
+        String fileName = "CoriSearch_Qrels_ALL_ResultsFile_"+topShards+"_.txt";
 
-        CoriSearchQrelsGenerator coriSearchQrelsGenerator = new CoriSearchQrelsGenerator();
+        CoriSearchQrelsGenerator coriSearchQrelsGenerator = new CoriSearchQrelsGenerator("localhost:9983", "clueweb_s", "clueweb_qrels_cori");
         HashMap<Integer, LinkedList<String>> qrelsFq=  coriSearchQrelsGenerator.loadFq("/Users/rajanishivarajmaski1/Desktop/selective_search/anagha/clueweb_queries/qrels_withDocName.txt");
         coriSearchQrelsGenerator.generateResults("/Users/rajanishivarajmaski1/Desktop/selective_search/anagha/clueweb_queries/all_bow.txt",
-                "clueweb", "clueweb_cori", "localhost:9983", "/Users/rajanishivarajmaski1/Desktop/selective_search/anagha/clueweb_queries/" + fileName, qrelsFq);
+                "clueweb_s", "clueweb_qrels_cori", "localhost:9983", "/Users/rajanishivarajmaski1/Desktop/selective_search/anagha/clueweb_queries/" + fileName, qrelsFq);
 
-        Utility.writeToFile(coriSearchQrelsGenerator.qTimeBuffer.toString(), "/Users/rajanishivarajmaski1/Desktop/selective_search/anagha/clueweb_queries/" + "QTime_Cori");
+      //  Utility.writeToFile(coriSearchQrelsGenerator.qTimeBuffer.toString(), "/Users/rajanishivarajmaski1/Desktop/selective_search/anagha/clueweb_queries/" + "QTime_Cori");
 
         System.exit(0);
     }
@@ -58,14 +58,17 @@ public class CoriSearchQrelsGenerator {
         String line;
         int number = 1;
         int qNum;
+        int docRel;
         try {
             lineIterator = FileUtils.lineIterator(new File(qrelsFile), "UTF-8");
             LinkedList<String> docNumbers = new LinkedList<>();
             while (lineIterator.hasNext()) {
                 line = lineIterator.nextLine();
                 String[] qrel = line.split(" ");
+                docRel = Integer.parseInt(qrel[3].trim());
                 qNum = Integer.parseInt(qrel[0]);
                 if (qNum == number) {
+                  //  if(docRel>0)
                     docNumbers.add(qrel[2]);
                 } else {
                     qrelsFq.put(number, docNumbers);

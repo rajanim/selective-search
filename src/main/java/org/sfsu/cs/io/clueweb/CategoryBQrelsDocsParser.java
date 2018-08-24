@@ -32,6 +32,9 @@ public class CategoryBQrelsDocsParser {
             while (it.hasNext()) {
                 String line = it.nextLine();
                 if (line.contains("EXTERNAL DOC ID:")) {
+                    if(line.contains("clueweb09-en0012-20-34744")){
+                        System.out.println("wait here");
+                    }
                     int index = builder.lastIndexOf(prevLine);
                     builder.delete(index, builder.length());
                     writeToFile(builder.toString(), rootPath+id);

@@ -10,7 +10,7 @@ class TestAnalyzer extends TestSuiteBuilder{
 
     CustomAnalyzer.initStem()
     val stemmer = CustomAnalyzer.getStemmer()
-    println(stemmer.stem("concerned"))
+    println(stemmer.stem("diversity"))
     println(stemmer.stem("windows"))
 
 
