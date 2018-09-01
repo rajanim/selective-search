@@ -25,7 +25,7 @@ public class CoriSearchQrelsGenerator {
     CoriSelectiveSearchSolr coriSelectiveSearchSolr;
     StringBuffer qTimeBuffer;
    // HashMap<Integer, LinkedList<String>> qrelsFq;
-    static int topShards = 10;
+    static int topShards = 1;
 
     public CoriSearchQrelsGenerator(){
 
@@ -46,7 +46,7 @@ public class CoriSearchQrelsGenerator {
         coriSearchQrelsGenerator.generateResults("/Users/rajanishivarajmaski1/Desktop/selective_search/anagha/clueweb_queries/all_bow.txt",
                 "clueweb_s", "clueweb_qrels_cori", "localhost:9983", "/Users/rajanishivarajmaski1/Desktop/selective_search/anagha/clueweb_queries/" + fileName, qrelsFq);
 
-      //  Utility.writeToFile(coriSearchQrelsGenerator.qTimeBuffer.toString(), "/Users/rajanishivarajmaski1/Desktop/selective_search/anagha/clueweb_queries/" + "QTime_Cori");
+        Utility.writeToFile(coriSearchQrelsGenerator.qTimeBuffer.toString(), "/Users/rajanishivarajmaski1/Desktop/selective_search/anagha/clueweb_queries/" + "QTime_Cori_" + topShards);
 
         System.exit(0);
     }

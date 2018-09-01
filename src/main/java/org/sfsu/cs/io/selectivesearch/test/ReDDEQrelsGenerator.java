@@ -28,21 +28,25 @@ public class ReDDEQrelsGenerator {
     }
 
     public static void main(String[] args) {
-        String fileName = "ReddeSearch_All_ResultsFile_qrels_10Shards.txt";
+        int topShards = 20;
+
+        String fileName = "ReddeSearch_All_ResultsFile_qrels_"+topShards+"Shards.txt";
         ReDDEQrelsGenerator reDDEQrelsGenerator = new ReDDEQrelsGenerator();
-        int rows = 1000;
+        int rowsToRet = 1000;
 
         HashMap<Integer, LinkedList<String>> qrelsFq=  reDDEQrelsGenerator.loadFqForRel(
                 "/Users/rajanishivarajmaski1/Desktop/selective_search/anagha/clueweb_queries/qrels_withDocName.txt");
 
         reDDEQrelsGenerator.generateResults("/Users/rajanishivarajmaski1/Desktop/selective_search/anagha/clueweb_queries/all_bow.txt",
-                "clueweb_s", "clueweb_qrels_redde", "localhost:9983", "/Users/rajanishivarajmaski1/Desktop/selective_search/anagha/clueweb_queries/" + fileName, rows, qrelsFq);
+                "clueweb_s", "clueweb_qrels_redde", "localhost:9983", "/Users/rajanishivarajmaski1/Desktop/selective_search/anagha/clueweb_queries/" + fileName, rowsToRet, qrelsFq,topShards);
 
-        //Utility.writeToFile(reDDEQrelsGenerator.qTimeBuffer.toString(), "/Users/rajanishivarajmaski1/Desktop/selective_search/anagha/clueweb_queries/"+"QTime_ReDDE");
+        Utility.writeToFile(reDDEQrelsGenerator.qTimeBuffer.toString(), "/Users/rajanishivarajmaski1/Desktop/selective_search/anagha/clueweb_queries/"+"QTime_ReDDE_" + topShards);
 
         System.exit(0);
     }
-    protected void generateResults(String queriesFile, String collection, String statsCollection, String zkHost, String outFile, int rowsToRet, HashMap<Integer, LinkedList<String>>  qrelsFq) {
+    protected void generateResults(String queriesFile, String collection, String statsCollection,
+                                   String zkHost, String outFile, int rowsToRet, HashMap<Integer,
+            LinkedList<String>>  qrelsFq, int topShards) {
         LineIterator lineIterator = null;
         String line;
         try {
@@ -51,7 +55,8 @@ public class ReDDEQrelsGenerator {
                 line = lineIterator.nextLine();
                 String[] idQuery = line.split(":");
                 String fq = getFq(idQuery[0].trim(), qrelsFq);
-                SolrDocumentList solrDocumentList = querySolr(idQuery[1].trim(), collection, statsCollection, zkHost, rowsToRet, fq);
+                SolrDocumentList solrDocumentList = querySolr(idQuery[1].trim(), collection,
+                        statsCollection, zkHost, rowsToRet, fq, topShards);
                 if (solrDocumentList != null)
                     appendResultsToFile(idQuery[0].trim(), solrDocumentList.iterator(), outFile);
             }
@@ -65,9 +70,9 @@ public class ReDDEQrelsGenerator {
 
     }
 
-    protected SolrDocumentList querySolr(String query, String clusterColl, String statCollection, String zkHost, int rowsToRet, String fq) {
+    protected SolrDocumentList querySolr(String query, String clusterColl, String statCollection, String zkHost, int rowsToRet, String fq, int topShards) {
         Tuple2 response = reDDESelecitveSearch.relevantDDEBasedSelectiveSearch(zkHost, statCollection, clusterColl,
-                query, 1000, 10, rowsToRet,fq);
+                query, 100, topShards, rowsToRet,fq);
         if(response!=null) {
             qTimeBuffer.append((int) (response._1())).append("\n");
             return response != null ? (SolrDocumentList) response._2() : null;

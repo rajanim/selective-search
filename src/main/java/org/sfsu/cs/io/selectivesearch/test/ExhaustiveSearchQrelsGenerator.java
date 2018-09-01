@@ -33,13 +33,13 @@ public class ExhaustiveSearchQrelsGenerator {
 
     public static void main(String[] args) {
 
-        String fileName = "ExhaustiveSearchResultsFile.txt";
+        String fileName = "ExhaustiveSearchResultsFile_Clueweb_qrels_Standard.txt";
         int rows = 1000;
         ExhaustiveSearchQrelsGenerator exhaustiveSearchQrelsGenerator = new ExhaustiveSearchQrelsGenerator();
         exhaustiveSearchQrelsGenerator.loadFq("/Users/rajanishivarajmaski1/Desktop/selective_search/anagha/clueweb_queries/qrels_withDocName.txt");
         exhaustiveSearchQrelsGenerator.generateResults("/Users/rajanishivarajmaski1/Desktop/selective_search/anagha/clueweb_queries/all_bow.txt",
-                "clueweb", "localhost:9983", "/Users/rajanishivarajmaski1/Desktop/selective_search/anagha/clueweb_queries/"+ fileName, rows);
-        Utility.writeToFile(exhaustiveSearchQrelsGenerator.qTimeBuffer.toString(), "/Users/rajanishivarajmaski1/Desktop/selective_search/anagha/clueweb_queries/"+"QTime_Exhaustive");
+                "clueweb_s", "localhost:9983", "/Users/rajanishivarajmaski1/Desktop/selective_search/anagha/clueweb_queries/"+ fileName, rows);
+        Utility.writeToFile(exhaustiveSearchQrelsGenerator.qTimeBuffer.toString(), "/Users/rajanishivarajmaski1/Desktop/selective_search/anagha/clueweb_queries/"+"_QTime_Exhaustive");
     System.exit(0);
     }
 
@@ -68,7 +68,7 @@ public class ExhaustiveSearchQrelsGenerator {
         SolrQuery solrQuery = new SolrQuery();
         solrQuery.set("collection", collection);
         solrQuery.setQuery(query);
-        solrQuery.setRequestHandler("edismax");
+        //solrQuery.setRequestHandler("edismax");
         solrQuery.set("fl", "id, score");
         solrQuery.setRows(rows);
         solrQuery.setFilterQueries(fq);
