@@ -24,7 +24,7 @@ object IndexToSolr {
     val solrRecords = docVectors.map(doc => {
       getInputSolrDoc(doc, KMeanClustering.predict(result, doc.vector))
     })
-    SolrSupport.indexDocs(zkHost, collectionName, 100, (solrRecords), scala.Option(60))
+    SolrSupport.indexDocs(zkHost, collectionName, 100, (solrRecords), g)
 
   }
 

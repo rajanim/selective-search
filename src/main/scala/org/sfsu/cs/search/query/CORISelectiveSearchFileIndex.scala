@@ -40,6 +40,7 @@ class CORISelectiveSearchFileIndex {
     val shardScore = mutable.HashMap.empty[String, Double]
     val queryTerms = searchQuery.split(" ")
     queryTerms.foreach(term => {
+      if(coriHelper.termDfMap.contains(term.trim)){
 
       val shards = coriHelper.termDfMap.get(term.trim).get
       val cf = shards.filter(_ != 0).size
@@ -51,7 +52,7 @@ class CORISelectiveSearchFileIndex {
         shardScore.put("shard" + shardCnt, finalScore)
       }
 
-    })
+    }})
 
 
     val sortedMap = shardScore.toSeq.sortWith(_._2 > _._2)
