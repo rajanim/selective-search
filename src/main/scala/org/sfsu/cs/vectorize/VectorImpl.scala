@@ -28,19 +28,19 @@ object VectorImpl {
   def getDocVectors(sc: SparkContext, tfDocs: RDD[TFDocument], numFeatures : Int, minDocFreq: Int) : RDD[DocVector]= {
     val numDocs = tfDocs.count()
     println(s"LOG: End numDocs count: $numDocs, at time ${Calendar.getInstance().getTime()} ")
-    println(s"LOG: Start docFreqs map builder: ${Calendar.getInstance().getTime()} ")
+   // println(s"LOG: Start docFreqs map builder: ${Calendar.getInstance().getTime()} ")
 
     val docFreqs = tfDocs.map(tfDoc => tfDoc.tfMap)
       .flatMap(_.keySet).map((_, 1)).reduceByKey(_ + _)
 
-    println(s"LOG: End docFreqs map builder: ${Calendar.getInstance().getTime()} ")
+    //println(s"LOG: End docFreqs map builder: ${Calendar.getInstance().getTime()} ")
     println(s"doc freq size: ", docFreqs.count())
 
     val ordering = Ordering.by[(Any, Int), Int](_._2)
     val topDocFreqs = docFreqs.top(numFeatures)(ordering).filter(_._2>minDocFreq)
     println(s"LOG: End topDocFreqs map builder: ${Calendar.getInstance().getTime()} ")
     println(s"topDocFreqs: ")
-    topDocFreqs.foreach(println(_))
+    //topDocFreqs.foreach(println(_))
     val rddTopDocFreqs = sc.parallelize(topDocFreqs)
 
     val idfs = rddTopDocFreqs.map {
