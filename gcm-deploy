@@ -1,0 +1,9 @@
+gcloud compute scp  --recurse /Users/rajanishivarajmaski1/University/CSC899/solr/solr-6.2.1/server/solr-webapp/webapp/banana/   nikhil@lab-instance-1:~/software/solr-6.2.1/server/solr-webapp/webapp/
+
+
+901  ./bin/spark-submit --master spark://10.138.0.2:7077 --num-executors 2  --conf "spark.shuffle.blockTransferService=nio" --class com.lucidworks.spark.SparkApp /home/rajanishivarajmaski1/selective-search/target/selective-search-1.0-SNAPSHOT.jar com.lucidworks.spark.ml.selectivesearch.TopicalShardsCreator -zkHost localhost:9983 -collection TestCollection -warcFilesPath /home/rajanishivarajmaski1/warc/ -dictionaryLocation /home/rajanishivarajmaski1/spark_cluster_job_op/20180226_171834idfMap -numFeatures 5000 -numClusters 5  -numPartitions 100 -numIterations 5 -stopWordsFilePath /home/rajanishivarajmaski1/stopwords.txt -minDocFreq 10
+
+
+ 886  export SPARK_LOCAL_IP=10.138.0.2
+  887  printenv | more
+  888  export SPARK_MASTER_HOST=10.138.0.2
