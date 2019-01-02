@@ -6,10 +6,7 @@ import org.jwat.warc.WarcReader;
 import org.jwat.warc.WarcReaderFactory;
 import org.jwat.warc.WarcRecord;
 
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.Serializable;
+import java.io.*;
 import java.util.Iterator;
 
 /**
@@ -25,6 +22,9 @@ public class ResponseIterator extends AbstractIterator<ResponseIterator.WarcEntr
      */
     final public static String TREC_ID = "WARC-TREC-ID";
     final WarcReader reader;
+    public Iterator<WarcRecord> getIter() {
+        return iter;
+    }
     final Iterator<WarcRecord> iter;
     private final InputStream input;
     private int errors = 0;
@@ -42,12 +42,17 @@ public class ResponseIterator extends AbstractIterator<ResponseIterator.WarcEntr
 
     }
 
+
     public ResponseIterator(InputStream input) throws IOException {
         this.input = input;
         this.reader = WarcReaderFactory.getReader(input);
 
         this.iter = reader.iterator();
+       /* if(iter.hasNext())
+            System.out.println("has next here");
 
+        iter.next().getHeaderList().forEach(value -> System.out.println(value.name));
+*/
     }
     public static boolean isResponse(WarcRecord record) {
         HeaderLine typeHeader = record.getHeader("WARC-Type");
@@ -60,7 +65,7 @@ public class ResponseIterator extends AbstractIterator<ResponseIterator.WarcEntr
         return errors;
     }
     @Override
-    protected WarcEntry computeNext() {
+    public WarcEntry computeNext() {
         while (iter.hasNext()) {
             WarcRecord record = iter.next();
             n++;
@@ -78,11 +83,12 @@ public class ResponseIterator extends AbstractIterator<ResponseIterator.WarcEntr
             int offset = record.header.headerBytes.length;
 
             String contentType = (record.getHttpHeader() != null) ? record.getHttpHeader().contentType : null;
+            String warcType = record.getHeader("WARC-Type").value;
 
             try {
                 byte[] httpHeader = record.getHttpHeader().getHeader();
                 byte[] content = IOUtils.toByteArray(record.getPayloadContent());
-                return new WarcEntry(trecId, content, httpHeader, offset, contentType);
+                return new WarcEntry(trecId, content, httpHeader, offset, contentType,warcType);
             } catch (Exception e) {
                 System.err.printf("Error reading record %d: %s", n, e);
                 errors += 1;
@@ -98,6 +104,7 @@ public class ResponseIterator extends AbstractIterator<ResponseIterator.WarcEntr
     }
     public void close() throws IOException {
         this.reader.close();
+        if(input!=null)
         this.input.close();
     }
 
@@ -110,13 +117,15 @@ public class ResponseIterator extends AbstractIterator<ResponseIterator.WarcEntr
         public final int contentOffset;
         public final String contentType;
         public final byte[] httpHeader;
+        public final String warcType;
 
-        public WarcEntry(String trecId, byte[] content, byte[] httpHeader, int contentOffset, String contentType) {
+        public WarcEntry(String trecId, byte[] content, byte[] httpHeader, int contentOffset, String contentType, String warcType) {
             this.trecId = trecId;
             this.content = content;
             this.httpHeader = httpHeader;
             this.contentOffset = contentOffset;
             this.contentType = contentType;
+            this.warcType = warcType;
         }
     }
 

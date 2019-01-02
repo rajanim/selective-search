@@ -2,6 +2,7 @@ package com.lucidworks.spark.ml.selectivesearch
 
 import java.util.Calendar
 
+import breeze.linalg.SparseVector
 import breeze.numerics.log10
 import com.lucidworks.spark.SparkApp.RDDProcessor
 import org.apache.commons.cli.{CommandLine, Option}
@@ -120,6 +121,14 @@ class TopicalShardsCreator extends RDDProcessor {
   }
 
   def run(conf: SparkConf, cli: CommandLine): Int = {
+
+    conf.set("spark.serializer", "org.apache.spark.serializer.KryoSerializer")
+    conf.registerKryoClasses(Array(
+      classOf[SparseVector[Int]],
+      classOf[SparseVector[Long]],
+      classOf[SparseVector[Double]],
+      classOf[SparseVector[Float]]
+    ))
     val sc = new SparkContext(conf)
     logger.warn("Spark context obtained", sc.sparkUser)
     warcFilesPath = cli.getOptionValue("warcFilesPath")
@@ -132,7 +141,7 @@ class TopicalShardsCreator extends RDDProcessor {
     println("phase: ", phase)
     //work for clueweb warc files
     if (warcFilesPath != null && !warcFilesPath.isEmpty) {
-      val stringDocs = Clueweb09Parser.getWarcRecordsViaFIS(sc, warcFilesPath, partitions = numPartitions)
+      val stringDocs = Clueweb09Parser.getWarcRecordsViaSparkAPI(sc, warcFilesPath, partitions = numPartitions)
       val tfDocs = Clueweb09Parser.getTFDocuments(sc, stringDocs, numPartitions, stopWordsFilePath)
       tfDocs.cache()
       if (phase == 1) {

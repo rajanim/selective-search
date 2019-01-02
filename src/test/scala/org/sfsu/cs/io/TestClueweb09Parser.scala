@@ -73,4 +73,14 @@ class TestClueweb09Parser extends TestSuiteBuilder {
   }
 
 
+  test("getWarcRecordsViaSparkAPI"){
+
+    val sc = SparkContext.getOrCreate(new SparkConf().setAppName("test app"))
+    val stringDocs = Clueweb09Parser.getWarcRecordsViaSparkAPI(sc, "/Users/rajanishivarajmaski1/ClueWeb09_English_9/ClueWeb09_English_9/small", 4)
+    println("stringDocs count", stringDocs.count)
+    stringDocs.take(2).foreach(elem => println(elem.contents))
+    assertResult(10788)(stringDocs.count())
+
+  }
+
 }

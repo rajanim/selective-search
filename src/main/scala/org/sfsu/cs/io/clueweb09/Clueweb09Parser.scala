@@ -1,6 +1,6 @@
 package org.sfsu.cs.io.clueweb09
 
-import java.io.{ByteArrayInputStream, File, FileInputStream, InputStream}
+import java.io._
 import java.util.Calendar
 import java.util.zip.GZIPInputStream
 
@@ -10,6 +10,7 @@ import org.apache.spark.rdd.RDD
 import org.jwat.warc.{WarcReaderFactory, WarcRecord}
 import org.sfsu.cs.document.{StringDocument, TFDocument}
 import org.sfsu.cs.io.clueweb.ResponseIterator
+import org.sfsu.cs.io.clueweb.ResponseIterator.WarcEntry
 import org.sfsu.cs.preprocess.CustomAnalyzer
 import org.sfsu.cs.utils.Utility
 
@@ -67,8 +68,11 @@ object Clueweb09Parser {
         }
       }
     }
-    println("list size: " + rootList.size)
-    sc.parallelize(rootList, partitions).map(record => new StringDocument(record.trecId, IOUtils.toString(record.content, "UTF-8")))
+    val totalSize = rootList.size
+    println("list size: " + totalSize)
+   val ret = sc.parallelize(rootList, partitions).map(record => new StringDocument(record.trecId, IOUtils.toString(record.content, "UTF-8")))
+  rootList.remove(totalSize-1)
+    ret
   }
 
 
@@ -87,16 +91,18 @@ object Clueweb09Parser {
     val warcRecords =  getWarcRecordsFromDirectory(sc, input, partitions)
 
     // Filter out records that are not reponses and get the HTML contents from the remaining WARC records
-    val htmlDocuments = warcRecords.filter {
+    val htmlDocuments = warcRecords.
+      filter {
       record => try {
-        record.getHeader("WARC-Type").value == "response"
+        record.warcType.trim == "response"
       } catch {
         case e: Exception => false
       }
-    }.map {
+    }
+    .map {
       record =>
-        val id = record.getHeader("WARC-TREC-ID").value
-        val html = IOUtils.toString(record.getPayloadContent, "UTF-8")
+        val id = record.trecId
+        val html = IOUtils.toString(record.content, "UTF-8")
         new StringDocument(id, html)
     }
 
@@ -112,8 +118,20 @@ object Clueweb09Parser {
     * @param input The directory where the files are located
     * @return An RDD of the WARC records
     */
-  def getWarcRecordsFromDirectory(sc:SparkContext, input:String, partitions:Int): RDD[WarcRecord] = {
-    sc.wholeTextFiles(input, partitions).flatMap(x => getWarcRecordsFromString(x._2))
+  def getWarcRecordsFromDirectory(sc:SparkContext, input:String, partitions:Int): RDD[WarcEntry] = {
+
+    sc.binaryFiles(input,partitions).flatMap(x =>
+      {
+        val rootList = new ListBuffer[WarcEntry]()
+        val inStream: InputStream = new GZIPInputStream(x._2.open)
+        val entries: ResponseIterator = new ResponseIterator(inStream)
+        while (entries.hasNext) rootList.+=:(entries.next())
+        inStream.close()
+        rootList
+      }
+    )
+
+    // sc.wholeTextFiles(input, partitions).flatMap(x => getWarcRecordsFromString(x._2))
   }
 
   /**
@@ -123,6 +141,8 @@ object Clueweb09Parser {
     * @return An iterator of WarcRecords
     */
   def getWarcRecordsFromString(contents: String): Iterator[WarcRecord] = {
+    //val reader = WarcReaderFactory.getReader(contents)
+
     val reader = WarcReaderFactory.getReader(new ByteArrayInputStream(contents.getBytes("UTF-8")))
     JavaConversions.asScalaIterator(reader.iterator())
   }
