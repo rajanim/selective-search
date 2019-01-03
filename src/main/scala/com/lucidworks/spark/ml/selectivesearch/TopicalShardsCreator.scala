@@ -142,13 +142,16 @@ class TopicalShardsCreator extends RDDProcessor {
     //work for clueweb warc files
     if (warcFilesPath != null && !warcFilesPath.isEmpty) {
       val stringDocs = Clueweb09Parser.getWarcRecordsViaSparkAPI(sc, warcFilesPath, partitions = numPartitions)
+      stringDocs.cache()
       val tfDocs = Clueweb09Parser.getTFDocuments(sc, stringDocs, numPartitions, stopWordsFilePath)
+      stringDocs.unpersist(true)
       tfDocs.cache()
       if (phase == 1) {
         executeProjectionPhase(sc, tfDocs)
       }
       else {
         val docVectors = VectorImpl.getDocVectors(sc, tfDocs, numFeatures, minDocFreq)
+        tfDocs.unpersist(true)
         val kMeansResult = initKmeans(docVectors)
         IndexToSolr.indexToSolr(docVectors, zkHost, collection, kMeansResult)
       }
