@@ -87,6 +87,7 @@ object Clueweb09Parser {
     */
   def getWarcRecordsViaSparkAPI(sc:SparkContext, input:String, partitions:Int): RDD[StringDocument] = {
 
+    println("getWarcRecordsViaSparkAPI is called for warc files etl")
     // Get the warc records
     val warcRecords =  getWarcRecordsFromDirectory(sc, input, partitions)
 

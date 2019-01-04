@@ -289,7 +289,7 @@ class TopicalShardsCreator extends RDDProcessor {
     logger.info(" warc Files directory path: " + warcFilesPath)
     logger.info(" text Files directory path: " + textFilesPath)
     logger.info(" model saved at: " + saveModelAt)
-    logger.info("min doc freq", minDocFreq)
+    logger.info("min doc freq " + minDocFreq)
 
     //solr cloud values
     zkHost = cli.getOptionValue("zkHost", "localhost:9983")
