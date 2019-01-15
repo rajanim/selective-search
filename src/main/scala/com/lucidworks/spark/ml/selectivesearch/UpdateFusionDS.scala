@@ -14,22 +14,24 @@
   object UpdateFusionDS {
 
 
-    val filename = "/d/d1/lw/fusion/4.1.0/sharepoint_urls.txt"
+    val filename = "/Users/rajanishivarajmaski1/Desktop/urls.txt"
     val apiHost = "http://localhost:8765"
     val connectorsHost = "http://localhost:8984"
-    val collection = "MorganStanleyEUTNBTO"
-    val indexPipeline = "sharepoint"
-    val parser = "sharepoint"
-    val dataSourceId = "SharePoint"
+    val collection = "MISC"
+    val indexPipeline = "MISC"
+    val parser = "MISC"
+    val dataSourceId = "misc"
 
     val bulkLinks = Source.fromFile(filename).getLines().mkString("\n")
 
 
 
     def main(args: Array[String]): Unit = {
-      request("PUT", s"""$apiHost/api/v1/jobs/datasource:${dataSourceId}""", datasourceTemplate(dataSourceId, bulkLinks))
+      request("PUT", s"""$connectorsHost/connectors/v1/connectors/datasources/$dataSourceId""", datasourceTemplate(dataSourceId,bulkLinks))
 
     }
+
+    request("PUT", s"""$apiHost/api/v1/jobs/datasource:${dataSourceId}""", datasourceTemplate(dataSourceId, bulkLinks))
 
     def request(method: String, url: String, jsonConfig: String = null): Boolean = {
       val client = HttpClients.createDefault()
@@ -50,10 +52,13 @@
         }
 
         val response = client.execute(httpCall)
+        println(String.valueOf(response.getStatusLine.getStatusCode))
 
         EntityUtils.consume(response.getEntity)
         // check that response is a 200 response
         response.getStatusLine.getStatusCode == 200
+
+
       } finally {
         client.close()
       }
@@ -66,10 +71,12 @@
     val datasourceTemplate = (id: String, links: String) =>
       s"""{
   "id" : "$id",
+  "created" : "2019-01-09T03:01:22.953Z",
+  "modified" : "2019-01-09T03:01:22.953Z",
   "connector" : "lucid.web",
   "type" : "web",
-  "pipeline" : "$indexPipeline",
-  "parserId" : "$parser",
+  "pipeline" : "MISC",
+  "parserId" : "MISC",
   "properties" : {
     "refreshOlderThan" : -1,
     "f.appendTrailingSlashToLinks" : false,
@@ -83,30 +90,38 @@
     "f.respectMetaEquivRedirects" : false,
     "refreshAll" : true,
     "f.defaultMIMEType" : "application/octet-stream",
-    "f.extraLoadTimeMs" : 0,
+    "f.extraLoadTimeMs" : 250,
     "f.jsPageLoadTimeout" : 20000,
     "restrictToTreeAllowSubdomains" : false,
     "f.jsScriptTimeout" : 20000,
+    "f.requestCounterMinWaitMs" : 5000,
     "maxItems" : -1,
     "f.jsAjaxTimeout" : 20000,
+    "trackEmbeddedIDs" : true,
     "dedupe" : false,
     "f.scrapeLinksBeforeFiltering" : false,
-    "trackEmbeddedIDs" : true,
     "f.allowAllCertificates" : false,
-    "collection" : "$collection",
+    "collection" : "MISC",
     "forceRefresh" : false,
+    "delete404" : true,
     "f.obeyRobots" : true,
     "parserRetryCount" : 0,
+    "f.quitTimeoutMs" : 5000,
     "fetchDelayMSPerHost" : true,
     "fetchThreads" : 5,
     "indexCrawlDBToSolr" : false,
     "f.requestRetryCount" : 0,
-    "restrictToTree" : true,
     "retainOutlinks" : false,
+    "restrictToTree" : true,
     "f.defaultCharSet" : "UTF-8",
+    "f.useRequestCounter" : true,
     "emitThreads" : 5,
-    "f.useFirefox" : true,
+    "f.headlessBrowser" : true,
+    "f.useFirefox" : false,
+    "f.canonicalTagsRedirectLimit" : 4,
     "diagnosticMode" : false,
+    "f.requestCounterMaxWaitMs" : 20000,
+    "f.followCanonicalTags" : true,
     "delete" : true,
     "initial_mapping" : {
       "mappings" : [ {
@@ -152,31 +167,34 @@
       } ],
       "reservedFieldsMappingAllowed" : false,
       "skip" : false,
-      "id" : "FromMap",
+      "id" : "Anda",
       "type" : "field-mapping"
     },
     "f.extraPageLoadDeltaChars" : 0,
     "restrictToTreeUseHostAndPath" : false,
+    "sitemap_incremental_crawling" : false,
+    "f.screenshotFullscreen" : false,
     "f.filteringRootTags" : [ "body", "head" ],
-    "startLinks" : [ ${links.map(link => s""""$link"""").mkString(",")} ],
+    "startLinks" : [ "http://google.com" ],
     "failFastOnStartLinkFailure" : true,
     "f.timeoutMS" : 10000,
     "f.discardLinkURLAnchors" : true,
-    "includeRegexes" : [ ${links.map(link => s""""$link.*"""").mkString(",")} ],
     "chunkSize" : 1,
+    "f.simulateMobile" : false,
     "f.obeyRobotsDelay" : true,
+    "f.useHighPerfJsEval" : false,
     "deleteErrorsAfter" : -1,
     "f.userAgentName" : "Lucidworks-Anda/2.0",
     "retryEmit" : true,
     "f.crawlJS" : false,
     "depth" : -1,
     "f.cookieSpec" : "browser-compatibility",
-    "f.maxSizeBytes" : 4194304,
     "refreshStartLinks" : false,
-    "aliasExpiration" : 1
-  },
-  "licensed" : true
-  }""".replaceAll("\n", "")
+    "f.maxSizeBytes" : 4194304,
+    "aliasExpiration" : 1,
+    "f.takeScreenshot" : false
+  }
+}""".replaceAll("\n", "")
 
 
 

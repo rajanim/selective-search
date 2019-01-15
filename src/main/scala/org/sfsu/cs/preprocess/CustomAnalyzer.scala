@@ -61,7 +61,7 @@ object CustomAnalyzer {
     val termList = mutable.HashMap.empty[Any, Double]
     while (terms.hasNext) {
       val term = terms.next()
-      if (term.size > 2) {
+      if (term.size > 3 && term.size <= 16) {
         val stemTerm = stem.stem(term)
         if(!stopWords.contains(stemTerm))
         if (!isAllDigits((stemTerm)))
