@@ -41,7 +41,7 @@ object Clueweb09Parser {
     CustomAnalyzer.initStem()
     val tfDocs = plainTextDocuments.map(doc => {
       val tf = CustomAnalyzer.tokenizeFilterStopWordsStem(doc.contents, stopWords)
-      new TFDocument(doc.id, tf)
+      new TFDocument(doc.id, tf, doc.contents)
     })
     tfDocs
   }

@@ -66,7 +66,7 @@ object VectorImpl {
 
         }
       })
-      new DocVector(doc.id, doc.tfMap, Vectors.sparse(numFeatures, tfIdfMap.toSeq))
+      new DocVector(doc.id, doc.tfMap, Vectors.sparse(numFeatures, tfIdfMap.toSeq), doc.contentText)
     })
 
     println(s"LOG: End of featurizing map to vectors: ${Calendar.getInstance().getTime()} ")

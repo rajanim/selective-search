@@ -47,6 +47,7 @@ object IndexToSolr {
     solrDoc.addField("clusterId_i", cid)
     solrDoc.addField("_route_", "shard" + cid)
     solrDoc.addField("similarityScore_s", clusterIdScore._2)
+    solrDoc.addField("raw_content_t", doc.contentText)
     solrDoc
   }
 }

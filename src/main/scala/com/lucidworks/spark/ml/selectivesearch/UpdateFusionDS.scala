@@ -1,15 +1,17 @@
   package com.lucidworks.spark.ml.selectivesearch
 
 
-  import org.apache.http.client.methods.{HttpGet, HttpPost, HttpPut}
-  import org.apache.http.entity.StringEntity
-  import org.apache.http.impl.client.HttpClients
-  import org.apache.http.util.EntityUtils
+    import org.apache.http.client.methods.{HttpGet, HttpPost, HttpPut}
+    import org.apache.http.entity.StringEntity
+    import org.apache.http.impl.client.HttpClients
+    import org.apache.http.util.EntityUtils
 
-  import scala.io.Source
+    import scala.io.Source
 
   /**
     * Created by rajanishivarajmaski1 on 1/3/19.
+    *
+    * Example scala script to update a data source
     */
   object UpdateFusionDS {
 
@@ -26,13 +28,20 @@
 
 
 
-    def main(args: Array[String]): Unit = {
-      request("PUT", s"""$connectorsHost/connectors/v1/connectors/datasources/$dataSourceId""", datasourceTemplate(dataSourceId,bulkLinks))
 
-    }
+    /*def main(args: Array[String]): Unit = {
+      updateDataSource(dataSourceId, datasourceTemplate(dataSourceId, "www.google.com/"))
+      //request("PUT", s"""$connectorsHost/connectors/v1/connectors/datasources/$dataSourceId""", datasourceTemplate(dataSourceId,bulkLinks))
 
-    request("PUT", s"""$apiHost/api/v1/jobs/datasource:${dataSourceId}""", datasourceTemplate(dataSourceId, bulkLinks))
+    }*/
 
+    /**
+      *
+      * @param method
+      * @param url
+      * @param jsonConfig
+      * @return
+      */
     def request(method: String, url: String, jsonConfig: String = null): Boolean = {
       val client = HttpClients.createDefault()
       try {
@@ -175,7 +184,7 @@
     "sitemap_incremental_crawling" : false,
     "f.screenshotFullscreen" : false,
     "f.filteringRootTags" : [ "body", "head" ],
-    "startLinks" : [ "http://google.com" ],
+    "startLinks" : [ "http://somethingelse.com" ],
     "failFastOnStartLinkFailure" : true,
     "f.timeoutMS" : 10000,
     "f.discardLinkURLAnchors" : true,
@@ -196,6 +205,7 @@
   }
 }""".replaceAll("\n", "")
 
+    request("PUT", s"""$connectorsHost/connectors/v1/connectors/datasources/$dataSourceId""", datasourceTemplate(dataSourceId,bulkLinks))
 
 
 

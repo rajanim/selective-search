@@ -7,4 +7,4 @@ package org.sfsu.cs.document
   * @param id The unique identifier
 
   */
-case class TFDocument(id: String, tfMap : Map[Any, Double]) extends Document(id)
+case class TFDocument(id: String, tfMap : Map[Any, Double], contentText: String) extends Document(id)
