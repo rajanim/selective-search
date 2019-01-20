@@ -41,7 +41,7 @@ object TextFileParser {
     CustomAnalyzer.initStem()
     val tfDocs = plainTextDocuments.map(doc => {
       val tf = CustomAnalyzer.tokenizeFilterStopWordsStem(doc.contents, stopWords)
-      new TFDocument(doc.id, tf, doc.contents)
+      new TFDocument(doc.id, tf)
     })
 
     tfDocs
@@ -58,7 +58,7 @@ object TextFileParser {
     CustomAnalyzer.initStem()
     val tfDocs = plainTextDocuments.map(doc => {
       val tf = CustomAnalyzer.tokenizeFilterStopWordsStem(doc.contents, stopWords)
-      new TFDocument(doc.id, tf, doc.contents)
+      new TFDocument(doc.id, tf)
     })
 
     tfDocs

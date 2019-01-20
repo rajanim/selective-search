@@ -198,7 +198,7 @@ class TopicalShardsCreator extends RDDProcessor {
 
         }
       })
-      new DocVector(doc.id, doc.tfMap, Vectors.sparse(numFeatures, tfIdfMap.toSeq), doc.contentText)
+      new DocVector(doc.id, doc.tfMap, Vectors.sparse(numFeatures, tfIdfMap.toSeq))
     })
 
     println(s"LOG: End of featurizing map to vectors: ${Calendar.getInstance().getTime()} ")

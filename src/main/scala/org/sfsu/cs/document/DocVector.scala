@@ -6,4 +6,4 @@ package org.sfsu.cs.document
   * @param id The unique identifier
 
   */
-case class DocVector(id: String, tfMap : Map[Any, Double], vector : org.apache.spark.mllib.linalg.Vector, contentText:String) extends Document(id)
+case class DocVector(id: String, tfMap : Map[Any, Double], vector : org.apache.spark.mllib.linalg.Vector) extends Document(id)
